@@ -121,10 +121,10 @@ export function MergeResults({ results, csvRows }: MergeResultsProps) {
             <div
               className={cn(
                 "overflow-hidden transition-all duration-200",
-                expandedIndex === index ? "max-h-[400px]" : "max-h-0"
+                expandedIndex === index ? "max-h-[500px]" : "max-h-0"
               )}
             >
-              <pre className="p-4 bg-muted font-mono text-xs overflow-x-auto scrollbar-thin">
+              <pre className="p-4 bg-muted font-mono text-xs overflow-auto max-h-[480px] scrollbar-thin">
                 <code>{result}</code>
               </pre>
             </div>
