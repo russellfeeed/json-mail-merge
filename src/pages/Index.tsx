@@ -5,6 +5,7 @@ import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
 import { MergeResults } from '@/components/MergeResults';
 import { parseCSV, extractPlaceholders, mergePlaceholders, validateJSON, formatJSON } from '@/lib/jsonMerge';
+import { resolveSystemPlaceholders } from '@/lib/systemPlaceholders';
 const Index = () => {
   const [jsonTemplate, setJsonTemplate] = useState('');
   const [csvData, setCsvData] = useState('');
@@ -17,7 +18,8 @@ const Index = () => {
     const formattedTemplate = formatJSON(jsonTemplate);
     return parsedCsv.rows.map(row => {
       const merged = mergePlaceholders(formattedTemplate, row);
-      return formatJSON(merged);
+      const withSystemPlaceholders = resolveSystemPlaceholders(merged);
+      return formatJSON(withSystemPlaceholders);
     });
   }, [jsonTemplate, parsedCsv, canMerge]);
   return <div className="min-h-screen bg-background">
@@ -50,7 +52,7 @@ const Index = () => {
           <div className="space-y-8">
             {/* JSON Template */}
             <div className="bg-card rounded-xl p-6 border border-border">
-              <JsonEditor value={jsonTemplate} onChange={setJsonTemplate} isValid={jsonValidation.valid} error={jsonValidation.error} placeholders={placeholders} />
+              <JsonEditor value={jsonTemplate} onChange={setJsonTemplate} isValid={jsonValidation.valid} error={jsonValidation.error} placeholders={placeholders} csvHeaders={parsedCsv.headers} />
             </div>
 
             {/* CSV Data */}
