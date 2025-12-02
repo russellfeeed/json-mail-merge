@@ -1,5 +1,6 @@
 import { useCallback, useState, useRef, KeyboardEvent } from 'react';
-import { Upload, FileJson, AlertCircle, Check } from 'lucide-react';
+import { Upload, FileJson, AlertCircle, Check, Download } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { PlaceholderAutocomplete } from './PlaceholderAutocomplete';
 import { getSystemPlaceholderNames } from '@/lib/systemPlaceholders';
@@ -49,6 +50,19 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
       reader.readAsText(file);
     }
   }, [onChange]);
+
+  const handleDownload = useCallback(() => {
+    if (!value) return;
+    const blob = new Blob([value], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'template.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [value]);
 
   const getCaretCoordinates = () => {
     const textarea = textareaRef.current;
@@ -160,13 +174,18 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
         </div>
         <div className="flex items-center gap-2">
           {value && (
-            <span className={cn(
-              "flex items-center gap-1 text-xs px-2 py-1 rounded",
-              isValid ? "bg-emerald-500/20 text-emerald-400" : "bg-destructive/20 text-destructive"
-            )}>
-              {isValid ? <Check className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
-              {isValid ? 'Valid JSON' : 'Invalid JSON'}
-            </span>
+            <>
+              <Button variant="ghost" size="sm" onClick={handleDownload} disabled={!isValid}>
+                <Download className="h-4 w-4" />
+              </Button>
+              <span className={cn(
+                "flex items-center gap-1 text-xs px-2 py-1 rounded",
+                isValid ? "bg-emerald-500/20 text-emerald-400" : "bg-destructive/20 text-destructive"
+              )}>
+                {isValid ? <Check className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
+                {isValid ? 'Valid JSON' : 'Invalid JSON'}
+              </span>
+            </>
           )}
         </div>
       </div>
