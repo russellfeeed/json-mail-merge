@@ -284,7 +284,7 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
                         </button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-3" align="start">
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           <p className="text-xs text-muted-foreground">Replace with fixed value:</p>
                           <code className="block px-2 py-1 bg-muted rounded text-sm font-mono">
                             {systemPlaceholder.getValue()}
@@ -298,8 +298,70 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
                               onChange(value.replace(regex, fixedValue));
                             }}
                           >
-                            Use this value
+                            Use current value
                           </Button>
+                          {(p === 'currentDatetime' || p === 'currentDate' || p === 'timestamp') && (
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                className="flex-1 text-xs"
+                                onClick={() => {
+                                  const now = new Date();
+                                  now.setHours(now.getHours() + 1);
+                                  let fixedValue: string;
+                                  if (p === 'timestamp') {
+                                    fixedValue = now.getTime().toString();
+                                  } else if (p === 'currentDate') {
+                                    fixedValue = now.toISOString().slice(0, 10);
+                                  } else {
+                                    fixedValue = now.toISOString().slice(0, 23);
+                                  }
+                                  const regex = new RegExp(`\\{\\{\\s*${p}\\s*\\}\\}`, 'g');
+                                  onChange(value.replace(regex, fixedValue));
+                                }}
+                              >
+                                +1 hour
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                className="flex-1 text-xs"
+                                onClick={() => {
+                                  const now = new Date();
+                                  now.setDate(now.getDate() + 1);
+                                  let fixedValue: string;
+                                  if (p === 'timestamp') {
+                                    fixedValue = now.getTime().toString();
+                                  } else if (p === 'currentDate') {
+                                    fixedValue = now.toISOString().slice(0, 10);
+                                  } else {
+                                    fixedValue = now.toISOString().slice(0, 23);
+                                  }
+                                  const regex = new RegExp(`\\{\\{\\s*${p}\\s*\\}\\}`, 'g');
+                                  onChange(value.replace(regex, fixedValue));
+                                }}
+                              >
+                                +1 day
+                              </Button>
+                            </div>
+                          )}
+                          {p === 'currentTime' && (
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="w-full text-xs"
+                              onClick={() => {
+                                const now = new Date();
+                                now.setHours(now.getHours() + 1);
+                                const fixedValue = now.toTimeString().slice(0, 8);
+                                const regex = new RegExp(`\\{\\{\\s*${p}\\s*\\}\\}`, 'g');
+                                onChange(value.replace(regex, fixedValue));
+                              }}
+                            >
+                              +1 hour
+                            </Button>
+                          )}
                         </div>
                       </PopoverContent>
                     </Popover>
