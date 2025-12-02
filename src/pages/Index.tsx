@@ -1,14 +1,33 @@
 import { useState, useMemo } from 'react';
-import { Wand2, ArrowRight } from 'lucide-react';
+import { Wand2, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
 import { MergeResults } from '@/components/MergeResults';
 import { parseCSV, extractPlaceholders, mergePlaceholders, validateJSON, formatJSON } from '@/lib/jsonMerge';
 import { resolveSystemPlaceholders, getSystemPlaceholderNames } from '@/lib/systemPlaceholders';
+const sampleJsonTemplate = `{
+  "id": "{{uuid}}",
+  "name": "{{name}}",
+  "email": "{{email}}",
+  "role": "{{role}}",
+  "createdAt": "{{currentDatetime}}",
+  "active": true
+}`;
+
+const sampleCsvData = `name,email,role
+John Smith,john@example.com,Admin
+Jane Doe,jane@example.com,Editor
+Bob Wilson,bob@example.com,Viewer`;
+
 const Index = () => {
   const [jsonTemplate, setJsonTemplate] = useState('');
   const [csvData, setCsvData] = useState('');
+
+  const loadExample = () => {
+    setJsonTemplate(sampleJsonTemplate);
+    setCsvData(sampleCsvData);
+  };
   const jsonValidation = useMemo(() => validateJSON(jsonTemplate), [jsonTemplate]);
   const placeholders = useMemo(() => extractPlaceholders(jsonTemplate), [jsonTemplate]);
   const systemPlaceholderNames = useMemo(() => getSystemPlaceholderNames(), []);
@@ -40,10 +59,16 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            {canMerge && <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" onClick={loadExample}>
+                <Sparkles className="h-4 w-4 mr-1" />
+                Load Example
+              </Button>
+              {canMerge && <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="text-primary font-medium">{mergedResults.length}</span>
                 <span>files ready</span>
               </div>}
+            </div>
           </div>
         </div>
       </header>
