@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Upload, Table, FileSpreadsheet } from 'lucide-react';
+import { Upload, Table, FileSpreadsheet, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ParsedCSV } from '@/lib/jsonMerge';
@@ -39,6 +39,19 @@ export function CsvEditor({ value, onChange, parsedData, requiredHeaders }: CsvE
     }
   }, [onChange]);
 
+  const handleDownload = useCallback(() => {
+    if (!value) return;
+    const blob = new Blob([value], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'data.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [value]);
+
   const generateSampleCSV = () => {
     if (requiredHeaders.length === 0) return;
     const headers = requiredHeaders.join(',');
@@ -57,15 +70,22 @@ export function CsvEditor({ value, onChange, parsedData, requiredHeaders }: CsvE
           <FileSpreadsheet className="h-5 w-5 text-primary" />
           <h2 className="text-lg font-semibold">CSV Data</h2>
         </div>
-        {requiredHeaders.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={generateSampleCSV}
-          >
-            Generate Sample
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {value && (
+            <Button variant="ghost" size="sm" onClick={handleDownload}>
+              <Download className="h-4 w-4" />
+            </Button>
+          )}
+          {requiredHeaders.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={generateSampleCSV}
+            >
+              Generate Sample
+            </Button>
+          )}
+        </div>
       </div>
 
       <div
