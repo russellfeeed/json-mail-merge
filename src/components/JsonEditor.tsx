@@ -252,7 +252,7 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
       )}
 
       {placeholders.length > 0 && (
-        <div className="space-y-2" data-tour="placeholders">
+        <div className="space-y-2">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">
             Detected Placeholders
           </p>
