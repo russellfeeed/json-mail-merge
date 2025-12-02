@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
 import { MergeResults } from '@/components/MergeResults';
+import { AppTour } from '@/components/AppTour';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -96,6 +97,7 @@ const Index = () => {
   const resultCount = arrayMode ? 1 : mergedResults.length;
 
   return <div className="min-h-screen bg-background">
+      <AppTour />
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
@@ -112,7 +114,7 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" onClick={loadExample}>
+              <Button variant="outline" size="sm" onClick={loadExample} data-tour="load-example">
                 <Sparkles className="h-4 w-4 mr-1" />
                 Load Example
               </Button>
@@ -136,12 +138,12 @@ const Index = () => {
           {/* Left Column - Inputs */}
           <div className="space-y-8">
             {/* JSON Template */}
-            <div className="bg-card rounded-xl p-6 border border-border">
+            <div className="bg-card rounded-xl p-6 border border-border" data-tour="json-editor">
               <JsonEditor value={jsonTemplate} onChange={setJsonTemplate} isValid={jsonValidation.valid} error={jsonValidation.error} placeholders={placeholders} csvHeaders={parsedCsv.headers} />
             </div>
 
             {/* CSV Data */}
-            <div className="bg-card rounded-xl p-6 border border-border">
+            <div className="bg-card rounded-xl p-6 border border-border" data-tour="csv-editor">
               <CsvEditor value={csvData} onChange={setCsvData} parsedData={parsedCsv} requiredHeaders={csvPlaceholders} />
             </div>
           </div>
@@ -149,7 +151,7 @@ const Index = () => {
           {/* Right Column - Results */}
           <div className="space-y-4">
             {/* Array Mode Toggle */}
-            <div className="bg-card rounded-xl p-6 border border-border">
+            <div className="bg-card rounded-xl p-6 border border-border" data-tour="array-mode">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -199,7 +201,7 @@ const Index = () => {
             </div>
 
             {/* Status Banner */}
-            <div className="bg-card rounded-xl p-6 border border-border">
+            <div className="bg-card rounded-xl p-6 border border-border" data-tour="merge-status">
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-1">
                   <h3 className="font-medium">Merge Status</h3>
@@ -225,9 +227,9 @@ const Index = () => {
             </div>
 
             {/* Results */}
-            {mergedResults.length > 0 ? <div className="bg-card rounded-xl p-6 border border-border">
+            {mergedResults.length > 0 ? <div className="bg-card rounded-xl p-6 border border-border" data-tour="results">
                 <MergeResults results={mergedResults} csvRows={arrayMode ? [{ _arrayMode: 'combined' }] : parsedCsv.rows} />
-              </div> : <div className="bg-card rounded-xl p-6 border border-border">
+              </div> : <div className="bg-card rounded-xl p-6 border border-border" data-tour="results">
                 <div className="text-center py-12">
                   <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                     <Wand2 className="h-8 w-8 text-muted-foreground" />
