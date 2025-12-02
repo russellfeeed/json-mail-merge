@@ -15,8 +15,10 @@ import { findArraysInJson, mergeAsArray } from '@/lib/arrayMerge';
 const sampleJsonTemplate = `{
   "id": "{{uuid}}",
   "name": "{{name}}",
+  "nameUpper": "{{name.toUpperCase()}}",
   "email": "{{email}}",
-  "role": "{{role}}",
+  "emailSlug": "{{email.slugify()}}",
+  "role": "{{role.capitalize()}}",
   "createdAt": "{{currentDatetime}}",
   "active": true
 }`;
@@ -26,9 +28,10 @@ const sampleArrayTemplate = `{
   "users": [
     {
       "id": "{{uuid}}",
-      "name": "{{name}}",
-      "email": "{{email}}",
-      "role": "{{role}}"
+      "name": "{{name.titleCase()}}",
+      "email": "{{email.toLowerCase()}}",
+      "role": "{{role.toUpperCase()}}",
+      "slug": "{{name.slugify()}}"
     }
   ]
 }`;
