@@ -210,6 +210,18 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
       </div>
 
       <div className="relative">
+        <div 
+          className="absolute inset-0 p-4 font-mono text-sm pointer-events-none overflow-hidden whitespace-pre-wrap break-words border border-transparent rounded-lg bg-muted"
+          aria-hidden="true"
+        >
+          {value.split(/(\{\{[^}]*\}\})/).map((part, i) => 
+            /\{\{[^}]*\}\}/.test(part) ? (
+              <mark key={i} className="bg-primary/40 text-primary rounded px-0.5">{part}</mark>
+            ) : (
+              <span key={i} className="text-foreground">{part}</span>
+            )
+          )}
+        </div>
         <textarea
           ref={textareaRef}
           value={value}
@@ -217,7 +229,7 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
           onKeyDown={handleKeyDown}
           onBlur={() => setTimeout(() => setAutocomplete(prev => ({ ...prev, isOpen: false })), 150)}
           placeholder={`{\n  "name": "{{name}}",\n  "email": "{{email}}",\n  "createdAt": "{{currentDatetime}}"\n}`}
-          className="code-editor w-full min-h-[250px] resize-y bg-muted border border-border rounded-lg p-4 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring scrollbar-thin"
+          className="code-editor w-full min-h-[250px] resize-y bg-transparent border border-border rounded-lg p-4 font-mono text-sm text-transparent caret-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring scrollbar-thin relative z-10"
           spellCheck={false}
         />
         <PlaceholderAutocomplete
