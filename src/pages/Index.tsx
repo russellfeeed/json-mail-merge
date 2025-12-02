@@ -4,36 +4,23 @@ import { Button } from '@/components/ui/button';
 import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
 import { MergeResults } from '@/components/MergeResults';
-import {
-  parseCSV,
-  extractPlaceholders,
-  mergePlaceholders,
-  validateJSON,
-  formatJSON,
-} from '@/lib/jsonMerge';
-
+import { parseCSV, extractPlaceholders, mergePlaceholders, validateJSON, formatJSON } from '@/lib/jsonMerge';
 const Index = () => {
   const [jsonTemplate, setJsonTemplate] = useState('');
   const [csvData, setCsvData] = useState('');
-
   const jsonValidation = useMemo(() => validateJSON(jsonTemplate), [jsonTemplate]);
   const placeholders = useMemo(() => extractPlaceholders(jsonTemplate), [jsonTemplate]);
   const parsedCsv = useMemo(() => parseCSV(csvData), [csvData]);
-
   const canMerge = jsonValidation.valid && parsedCsv.rows.length > 0;
-
   const mergedResults = useMemo(() => {
     if (!canMerge) return [];
-    
     const formattedTemplate = formatJSON(jsonTemplate);
-    return parsedCsv.rows.map((row) => {
+    return parsedCsv.rows.map(row => {
       const merged = mergePlaceholders(formattedTemplate, row);
       return formatJSON(merged);
     });
   }, [jsonTemplate, parsedCsv, canMerge]);
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
@@ -43,18 +30,16 @@ const Index = () => {
                 <Wand2 className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">JSON Mail Merge</h1>
+                <h1 className="text-xl font-bold">JSON Data Merge</h1>
                 <p className="text-xs text-muted-foreground">
                   Merge CSV data into JSON templates
                 </p>
               </div>
             </div>
-            {canMerge && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            {canMerge && <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="text-primary font-medium">{mergedResults.length}</span>
                 <span>files ready</span>
-              </div>
-            )}
+              </div>}
           </div>
         </div>
       </header>
@@ -65,23 +50,12 @@ const Index = () => {
           <div className="space-y-8">
             {/* JSON Template */}
             <div className="bg-card rounded-xl p-6 border border-border">
-              <JsonEditor
-                value={jsonTemplate}
-                onChange={setJsonTemplate}
-                isValid={jsonValidation.valid}
-                error={jsonValidation.error}
-                placeholders={placeholders}
-              />
+              <JsonEditor value={jsonTemplate} onChange={setJsonTemplate} isValid={jsonValidation.valid} error={jsonValidation.error} placeholders={placeholders} />
             </div>
 
             {/* CSV Data */}
             <div className="bg-card rounded-xl p-6 border border-border">
-              <CsvEditor
-                value={csvData}
-                onChange={setCsvData}
-                parsedData={parsedCsv}
-                requiredHeaders={placeholders}
-              />
+              <CsvEditor value={csvData} onChange={setCsvData} parsedData={parsedCsv} requiredHeaders={placeholders} />
             </div>
           </div>
 
@@ -110,12 +84,9 @@ const Index = () => {
             </div>
 
             {/* Results */}
-            {mergedResults.length > 0 ? (
-              <div className="bg-card rounded-xl p-6 border border-border">
+            {mergedResults.length > 0 ? <div className="bg-card rounded-xl p-6 border border-border">
                 <MergeResults results={mergedResults} csvRows={parsedCsv.rows} />
-              </div>
-            ) : (
-              <div className="bg-card rounded-xl p-6 border border-border">
+              </div> : <div className="bg-card rounded-xl p-6 border border-border">
                 <div className="text-center py-12">
                   <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                     <Wand2 className="h-8 w-8 text-muted-foreground" />
@@ -125,8 +96,7 @@ const Index = () => {
                     Upload a JSON template with {`{{placeholders}}`} and CSV data to see merged results here.
                   </p>
                 </div>
-              </div>
-            )}
+              </div>}
 
             {/* Instructions */}
             <div className="bg-muted/50 rounded-xl p-6 border border-border">
@@ -149,8 +119,6 @@ const Index = () => {
           </div>
         </div>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
