@@ -1,11 +1,16 @@
-import { useState, useMemo } from 'react';
-import { Wand2, ArrowRight, Sparkles } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Wand2, ArrowRight, Sparkles, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
 import { MergeResults } from '@/components/MergeResults';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { parseCSV, extractPlaceholders, mergePlaceholders, validateJSON, formatJSON } from '@/lib/jsonMerge';
 import { resolveSystemPlaceholders, getSystemPlaceholderNames } from '@/lib/systemPlaceholders';
+import { findArraysInJson, mergeAsArray } from '@/lib/arrayMerge';
+
 const sampleJsonTemplate = `{
   "id": "{{uuid}}",
   "name": "{{name}}",
@@ -13,6 +18,18 @@ const sampleJsonTemplate = `{
   "role": "{{role}}",
   "createdAt": "{{currentDatetime}}",
   "active": true
+}`;
+
+const sampleArrayTemplate = `{
+  "generatedAt": "{{currentDatetime}}",
+  "users": [
+    {
+      "id": "{{uuid}}",
+      "name": "{{name}}",
+      "email": "{{email}}",
+      "role": "{{role}}"
+    }
+  ]
 }`;
 
 const sampleCsvData = `name,email,role
@@ -23,26 +40,55 @@ Bob Wilson,bob@example.com,Viewer`;
 const Index = () => {
   const [jsonTemplate, setJsonTemplate] = useState('');
   const [csvData, setCsvData] = useState('');
+  const [arrayMode, setArrayMode] = useState(false);
+  const [selectedArrayPath, setSelectedArrayPath] = useState<string>('');
 
   const loadExample = () => {
-    setJsonTemplate(sampleJsonTemplate);
+    setJsonTemplate(arrayMode ? sampleArrayTemplate : sampleJsonTemplate);
     setCsvData(sampleCsvData);
   };
+
   const jsonValidation = useMemo(() => validateJSON(jsonTemplate), [jsonTemplate]);
   const placeholders = useMemo(() => extractPlaceholders(jsonTemplate), [jsonTemplate]);
   const systemPlaceholderNames = useMemo(() => getSystemPlaceholderNames(), []);
   const csvPlaceholders = useMemo(() => placeholders.filter(p => !systemPlaceholderNames.includes(p)), [placeholders, systemPlaceholderNames]);
   const parsedCsv = useMemo(() => parseCSV(csvData), [csvData]);
-  const canMerge = jsonValidation.valid && parsedCsv.rows.length > 0;
+  
+  const availableArrays = useMemo(() => {
+    if (!jsonValidation.valid) return [];
+    return findArraysInJson(jsonTemplate);
+  }, [jsonTemplate, jsonValidation.valid]);
+
+  // Auto-select first array when available
+  useEffect(() => {
+    if (arrayMode && availableArrays.length > 0 && !selectedArrayPath) {
+      setSelectedArrayPath(availableArrays[0].path);
+    }
+    if (!arrayMode) {
+      setSelectedArrayPath('');
+    }
+  }, [arrayMode, availableArrays, selectedArrayPath]);
+
+  const canMerge = jsonValidation.valid && parsedCsv.rows.length > 0 && (!arrayMode || selectedArrayPath);
+
   const mergedResults = useMemo(() => {
     if (!canMerge) return [];
+    
+    if (arrayMode && selectedArrayPath) {
+      const result = mergeAsArray(jsonTemplate, parsedCsv.rows, selectedArrayPath);
+      return [result];
+    }
+    
     const formattedTemplate = formatJSON(jsonTemplate);
     return parsedCsv.rows.map(row => {
       const merged = mergePlaceholders(formattedTemplate, row);
       const withSystemPlaceholders = resolveSystemPlaceholders(merged);
       return formatJSON(withSystemPlaceholders);
     });
-  }, [jsonTemplate, parsedCsv, canMerge]);
+  }, [jsonTemplate, parsedCsv, canMerge, arrayMode, selectedArrayPath]);
+
+  const resultCount = arrayMode ? 1 : mergedResults.length;
+
   return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
@@ -65,8 +111,8 @@ const Index = () => {
                 Load Example
               </Button>
               {canMerge && <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="text-primary font-medium">{mergedResults.length}</span>
-                <span>files ready</span>
+                <span className="text-primary font-medium">{resultCount}</span>
+                <span>{resultCount === 1 ? 'file' : 'files'} ready</span>
               </div>}
             </div>
           </div>
@@ -90,6 +136,56 @@ const Index = () => {
 
           {/* Right Column - Results */}
           <div className="space-y-4">
+            {/* Array Mode Toggle */}
+            <div className="bg-card rounded-xl p-6 border border-border">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <List className="h-5 w-5 text-primary" />
+                    <Label htmlFor="array-mode" className="font-medium">Array Mode</Label>
+                  </div>
+                  <Switch
+                    id="array-mode"
+                    checked={arrayMode}
+                    onCheckedChange={setArrayMode}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {arrayMode 
+                    ? 'Generate a single JSON with an array containing all CSV rows'
+                    : 'Generate separate JSON files for each CSV row'
+                  }
+                </p>
+                
+                {arrayMode && jsonValidation.valid && (
+                  <div className="pt-2 border-t border-border">
+                    {availableArrays.length > 0 ? (
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Select array to populate</Label>
+                        <Select value={selectedArrayPath} onValueChange={setSelectedArrayPath}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select an array..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableArrays.map(arr => (
+                              <SelectItem key={arr.path} value={arr.path}>
+                                <span className="font-mono text-primary">{arr.path}</span>
+                                <span className="text-muted-foreground ml-2 text-xs">{arr.preview}</span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-amber-400">
+                        No arrays found in template. Add an array with at least one item as a template.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Status Banner */}
             <div className="bg-card rounded-xl p-6 border border-border">
               <div className="flex items-center justify-between gap-4">
@@ -99,7 +195,11 @@ const Index = () => {
                     {!jsonTemplate && 'Add a JSON template to get started'}
                     {jsonTemplate && !jsonValidation.valid && 'Fix JSON errors to continue'}
                     {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length === 0 && 'Add CSV data to merge'}
-                    {canMerge && `Ready to generate ${parsedCsv.rows.length} merged JSON files`}
+                    {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length > 0 && arrayMode && !selectedArrayPath && 'Select an array to populate'}
+                    {canMerge && (arrayMode 
+                      ? `Ready to generate 1 JSON file with ${parsedCsv.rows.length} array items`
+                      : `Ready to generate ${parsedCsv.rows.length} merged JSON files`
+                    )}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -114,7 +214,7 @@ const Index = () => {
 
             {/* Results */}
             {mergedResults.length > 0 ? <div className="bg-card rounded-xl p-6 border border-border">
-                <MergeResults results={mergedResults} csvRows={parsedCsv.rows} />
+                <MergeResults results={mergedResults} csvRows={arrayMode ? [{ _arrayMode: 'combined' }] : parsedCsv.rows} />
               </div> : <div className="bg-card rounded-xl p-6 border border-border">
                 <div className="text-center py-12">
                   <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
@@ -141,7 +241,10 @@ const Index = () => {
                 </li>
                 <li className="flex gap-2">
                   <span className="text-primary font-mono">3.</span>
-                  Download individual or all merged JSON files
+                  {arrayMode 
+                    ? 'Enable Array Mode to combine all rows into a single JSON array'
+                    : 'Download individual or all merged JSON files'
+                  }
                 </li>
               </ol>
             </div>
