@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { PlaceholderAutocomplete } from './PlaceholderAutocomplete';
 import { getSystemPlaceholderNames, systemPlaceholders, dateTimePlaceholderNames } from '@/lib/systemPlaceholders';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { getAvailableMethods, parsePlaceholder } from '@/lib/placeholderMethods';
 
 interface JsonEditorProps {
   value: string;
@@ -22,10 +23,13 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
     position: { top: 0, left: 0 },
     filter: '',
     selectedIndex: 0,
-    startPos: 0
+    startPos: 0,
+    isMethodMode: false,
+    currentPlaceholder: ''
   });
 
   const systemPlaceholderNames = getSystemPlaceholderNames();
+  const availableMethods = getAvailableMethods();
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -97,13 +101,42 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
       const textAfterBrace = textBeforeCursor.substring(lastDoubleBrace + 2);
       // Check if there's no closing brace and no newline
       if (!textAfterBrace.includes('}}') && !textAfterBrace.includes('\n')) {
+        // Check if we're in method mode (after a dot)
+        const lastDot = textAfterBrace.lastIndexOf('.');
+        
+        if (lastDot !== -1) {
+          // Method mode - show method suggestions
+          const placeholderName = textAfterBrace.substring(0, lastDot);
+          const methodFilter = textAfterBrace.substring(lastDot + 1);
+          
+          // Validate that the placeholder name exists
+          const baseName = placeholderName.split('.')[0];
+          const isValidPlaceholder = systemPlaceholderNames.includes(baseName) || csvHeaders.includes(baseName);
+          
+          if (isValidPlaceholder) {
+            setAutocomplete({
+              isOpen: true,
+              position: getCaretCoordinates(),
+              filter: methodFilter,
+              selectedIndex: 0,
+              startPos: lastDoubleBrace,
+              isMethodMode: true,
+              currentPlaceholder: placeholderName
+            });
+            return;
+          }
+        }
+        
+        // Regular placeholder mode
         const filter = textAfterBrace;
         setAutocomplete({
           isOpen: true,
           position: getCaretCoordinates(),
           filter,
           selectedIndex: 0,
-          startPos: lastDoubleBrace
+          startPos: lastDoubleBrace,
+          isMethodMode: false,
+          currentPlaceholder: ''
         });
         return;
       }
@@ -120,18 +153,37 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
     const textBeforeCursor = value.substring(0, cursorPos);
     const lastDoubleBrace = textBeforeCursor.lastIndexOf('{{');
     
-    const newValue = 
-      value.substring(0, lastDoubleBrace) + 
-      `{{${placeholder}}}` + 
-      value.substring(cursorPos);
+    let newValue: string;
+    let newCursorPos: number;
+    
+    if (autocomplete.isMethodMode) {
+      // Insert method after the current placeholder
+      const textAfterBrace = textBeforeCursor.substring(lastDoubleBrace + 2);
+      const lastDot = textAfterBrace.lastIndexOf('.');
+      const insertPos = lastDoubleBrace + 2 + lastDot + 1;
+      
+      newValue = 
+        value.substring(0, insertPos) + 
+        placeholder + 
+        value.substring(cursorPos);
+      
+      newCursorPos = insertPos + placeholder.length;
+    } else {
+      // Insert regular placeholder
+      newValue = 
+        value.substring(0, lastDoubleBrace) + 
+        `{{${placeholder}}}` + 
+        value.substring(cursorPos);
+      
+      newCursorPos = lastDoubleBrace + placeholder.length + 4;
+    }
     
     onChange(newValue);
     setAutocomplete(prev => ({ ...prev, isOpen: false }));
 
     // Set cursor position after the inserted placeholder
     setTimeout(() => {
-      const newPos = lastDoubleBrace + placeholder.length + 4;
-      textarea.setSelectionRange(newPos, newPos);
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
       textarea.focus();
     }, 0);
   };
@@ -139,10 +191,12 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (!autocomplete.isOpen) return;
 
-    const allSuggestions = [
-      ...systemPlaceholderNames,
-      ...csvHeaders
-    ].filter(s => s.toLowerCase().includes(autocomplete.filter.toLowerCase()));
+    const allSuggestions = autocomplete.isMethodMode
+      ? availableMethods.map(m => m.name.replace('()', '')).filter(s => s.toLowerCase().includes(autocomplete.filter.toLowerCase()))
+      : [
+          ...systemPlaceholderNames,
+          ...csvHeaders
+        ].filter(s => s.toLowerCase().includes(autocomplete.filter.toLowerCase()));
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -159,7 +213,8 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
     } else if (e.key === 'Enter' || e.key === 'Tab') {
       if (allSuggestions.length > 0) {
         e.preventDefault();
-        handleSelect(allSuggestions[autocomplete.selectedIndex]);
+        const selected = allSuggestions[autocomplete.selectedIndex];
+        handleSelect(autocomplete.isMethodMode ? `${selected}()` : selected);
       }
     } else if (e.key === 'Escape') {
       setAutocomplete(prev => ({ ...prev, isOpen: false }));
@@ -241,6 +296,8 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
           onSelect={handleSelect}
           onClose={() => setAutocomplete(prev => ({ ...prev, isOpen: false }))}
           selectedIndex={autocomplete.selectedIndex}
+          isMethodMode={autocomplete.isMethodMode}
+          currentPlaceholder={autocomplete.currentPlaceholder}
         />
       </div>
 
@@ -258,22 +315,29 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
           </p>
           <div className="flex flex-wrap gap-2">
             {placeholders.map((p) => {
-              const isDateTime = dateTimePlaceholderNames.includes(p);
-              const systemPlaceholder = systemPlaceholders.find(sp => sp.name === p);
+              const parsed = parsePlaceholder(p);
+              const baseName = parsed.baseName;
+              const isDateTime = dateTimePlaceholderNames.includes(baseName);
+              const systemPlaceholder = systemPlaceholders.find(sp => sp.name === baseName);
+              const isSystemPlaceholder = systemPlaceholderNames.includes(baseName);
+              const hasMethods = parsed.methods.length > 0;
               
               return (
                 <span 
                   key={p} 
                   className={cn(
                     "placeholder-tag group relative",
-                    systemPlaceholderNames.includes(p) && "border-primary/50 bg-primary/10"
+                    isSystemPlaceholder && "border-primary/50 bg-primary/10"
                   )}
                 >
                   {`{{${p}}}`}
-                  {systemPlaceholderNames.includes(p) && (
+                  {isSystemPlaceholder && (
                     <span className="ml-1 text-[10px] text-primary">SYS</span>
                   )}
-                  {isDateTime && systemPlaceholder && (
+                  {hasMethods && (
+                    <span className="ml-1 text-[10px] text-accent-foreground">+{parsed.methods.length}</span>
+                  )}
+                  {isDateTime && systemPlaceholder && !hasMethods && (
                     <Popover>
                       <PopoverTrigger asChild>
                         <button 
