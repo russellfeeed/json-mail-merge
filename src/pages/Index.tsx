@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Wand2, ArrowRight, Sparkles, List } from 'lucide-react';
+import { Wand2, ArrowRight, Sparkles, List, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
@@ -46,6 +46,12 @@ const Index = () => {
   const loadExample = () => {
     setJsonTemplate(arrayMode ? sampleArrayTemplate : sampleJsonTemplate);
     setCsvData(sampleCsvData);
+  };
+
+  const clearAll = () => {
+    setJsonTemplate('');
+    setCsvData('');
+    setSelectedArrayPath('');
   };
 
   const jsonValidation = useMemo(() => validateJSON(jsonTemplate), [jsonTemplate]);
@@ -110,6 +116,12 @@ const Index = () => {
                 <Sparkles className="h-4 w-4 mr-1" />
                 Load Example
               </Button>
+              {(jsonTemplate || csvData) && (
+                <Button variant="ghost" size="sm" onClick={clearAll}>
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Clear All
+                </Button>
+              )}
               {canMerge && <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="text-primary font-medium">{resultCount}</span>
                 <span>{resultCount === 1 ? 'file' : 'files'} ready</span>
