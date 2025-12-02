@@ -1,3 +1,5 @@
+import { parsePlaceholder, applyMethods } from './placeholderMethods';
+
 export interface SystemPlaceholder {
   name: string;
   description: string;
@@ -55,9 +57,26 @@ export function getSystemPlaceholderNames(): string[] {
 export function resolveSystemPlaceholders(jsonString: string): string {
   let result = jsonString;
   
-  for (const placeholder of systemPlaceholders) {
-    const regex = new RegExp(`\\{\\{\\s*${placeholder.name}\\s*\\}\\}`, 'g');
-    result = result.replace(regex, placeholder.getValue());
+  // Find all system placeholders with their methods
+  const regex = /\{\{([^}]+)\}\}/g;
+  let match;
+  
+  while ((match = regex.exec(jsonString)) !== null) {
+    const parsed = parsePlaceholder(match[1].trim());
+    const systemPlaceholder = systemPlaceholders.find(p => p.name === parsed.baseName);
+    
+    if (systemPlaceholder) {
+      let value = systemPlaceholder.getValue();
+      value = applyMethods(value, parsed.methods);
+      
+      // Build the exact regex for this placeholder
+      const escapedBase = parsed.baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const methodsPattern = parsed.methods.length > 0
+        ? `\\.${parsed.methods.map(m => m.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\(\\)').join('\\.')}`
+        : '';
+      const placeholderRegex = new RegExp(`\\{\\{\\s*${escapedBase}${methodsPattern}\\s*\\}\\}`, 'g');
+      result = result.replace(placeholderRegex, value);
+    }
   }
   
   return result;

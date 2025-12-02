@@ -8,7 +8,7 @@ import { AppTour } from '@/components/AppTour';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { parseCSV, extractPlaceholders, mergePlaceholders, validateJSON, formatJSON } from '@/lib/jsonMerge';
+import { parseCSV, extractPlaceholders, extractFullPlaceholders, mergePlaceholders, validateJSON, formatJSON } from '@/lib/jsonMerge';
 import { resolveSystemPlaceholders, getSystemPlaceholderNames } from '@/lib/systemPlaceholders';
 import { findArraysInJson, mergeAsArray } from '@/lib/arrayMerge';
 
@@ -57,6 +57,7 @@ const Index = () => {
 
   const jsonValidation = useMemo(() => validateJSON(jsonTemplate), [jsonTemplate]);
   const placeholders = useMemo(() => extractPlaceholders(jsonTemplate), [jsonTemplate]);
+  const fullPlaceholders = useMemo(() => extractFullPlaceholders(jsonTemplate), [jsonTemplate]);
   const systemPlaceholderNames = useMemo(() => getSystemPlaceholderNames(), []);
   const csvPlaceholders = useMemo(() => placeholders.filter(p => !systemPlaceholderNames.includes(p)), [placeholders, systemPlaceholderNames]);
   const parsedCsv = useMemo(() => parseCSV(csvData), [csvData]);
@@ -139,7 +140,7 @@ const Index = () => {
           <div className="space-y-8">
             {/* JSON Template */}
             <div className="bg-card rounded-xl p-6 border border-border" data-tour="json-editor">
-              <JsonEditor value={jsonTemplate} onChange={setJsonTemplate} isValid={jsonValidation.valid} error={jsonValidation.error} placeholders={placeholders} csvHeaders={parsedCsv.headers} />
+              <JsonEditor value={jsonTemplate} onChange={setJsonTemplate} isValid={jsonValidation.valid} error={jsonValidation.error} placeholders={fullPlaceholders} csvHeaders={parsedCsv.headers} />
             </div>
 
             {/* CSV Data */}

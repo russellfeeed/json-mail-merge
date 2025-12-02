@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { systemPlaceholders } from '@/lib/systemPlaceholders';
+import { getAvailableMethods } from '@/lib/placeholderMethods';
 
 interface PlaceholderAutocompleteProps {
   isOpen: boolean;
@@ -10,6 +11,8 @@ interface PlaceholderAutocompleteProps {
   onSelect: (placeholder: string) => void;
   onClose: () => void;
   selectedIndex: number;
+  isMethodMode?: boolean;
+  currentPlaceholder?: string;
 }
 
 export function PlaceholderAutocomplete({
@@ -19,22 +22,38 @@ export function PlaceholderAutocomplete({
   csvHeaders,
   onSelect,
   onClose,
-  selectedIndex
+  selectedIndex,
+  isMethodMode = false,
+  currentPlaceholder = ''
 }: PlaceholderAutocompleteProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const allSuggestions = [
-    ...systemPlaceholders.map(p => ({
-      name: p.name,
-      description: p.description,
-      isSystem: true
-    })),
-    ...csvHeaders.map(h => ({
-      name: h,
-      description: 'CSV column',
-      isSystem: false
-    }))
-  ];
+  const methods = getAvailableMethods();
+
+  const allSuggestions = isMethodMode
+    ? methods.map(m => ({
+        name: m.name.replace('()', ''),
+        displayName: m.name,
+        description: m.description,
+        isSystem: false,
+        isMethod: true
+      }))
+    : [
+        ...systemPlaceholders.map(p => ({
+          name: p.name,
+          displayName: p.name,
+          description: p.description,
+          isSystem: true,
+          isMethod: false
+        })),
+        ...csvHeaders.map(h => ({
+          name: h,
+          displayName: h,
+          description: 'CSV column',
+          isSystem: false,
+          isMethod: false
+        }))
+      ];
 
   const filteredSuggestions = allSuggestions.filter(s =>
     s.name.toLowerCase().includes(filter.toLowerCase())
@@ -55,6 +74,11 @@ export function PlaceholderAutocomplete({
       className="absolute z-50 bg-popover border border-border rounded-lg shadow-lg overflow-hidden max-h-64 overflow-y-auto min-w-[250px]"
       style={{ top: position.top, left: position.left }}
     >
+      {isMethodMode && (
+        <div className="px-3 py-2 text-xs text-muted-foreground border-b border-border bg-muted/50">
+          Methods for <span className="font-mono text-primary">{currentPlaceholder}</span>
+        </div>
+      )}
       <div className="p-1">
         {filteredSuggestions.map((suggestion, index) => (
           <button
@@ -66,11 +90,13 @@ export function PlaceholderAutocomplete({
                 ? "bg-primary text-primary-foreground"
                 : "hover:bg-muted"
             )}
-            onClick={() => onSelect(suggestion.name)}
+            onClick={() => onSelect(suggestion.isMethod ? suggestion.displayName : suggestion.name)}
             onMouseDown={(e) => e.preventDefault()}
           >
             <div className="flex flex-col">
-              <span className="font-mono">{`{{${suggestion.name}}}`}</span>
+              <span className="font-mono">
+                {suggestion.isMethod ? `.${suggestion.displayName}` : `{{${suggestion.displayName}}}`}
+              </span>
               <span className={cn(
                 "text-xs",
                 index === selectedIndex ? "text-primary-foreground/70" : "text-muted-foreground"
@@ -86,6 +112,16 @@ export function PlaceholderAutocomplete({
                   : "bg-primary/20 text-primary"
               )}>
                 System
+              </span>
+            )}
+            {suggestion.isMethod && (
+              <span className={cn(
+                "text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide",
+                index === selectedIndex
+                  ? "bg-primary-foreground/20 text-primary-foreground"
+                  : "bg-accent/50 text-accent-foreground"
+              )}>
+                Method
               </span>
             )}
           </button>

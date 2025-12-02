@@ -1,3 +1,5 @@
+import { parsePlaceholder, applyMethods } from './placeholderMethods';
+
 export interface ParsedCSV {
   headers: string[];
   rows: Record<string, string>[];
@@ -52,7 +54,22 @@ function parseCSVLine(line: string): string[] {
   return result;
 }
 
+// Extract placeholders and return base names for CSV matching
 export function extractPlaceholders(jsonString: string): string[] {
+  const regex = /\{\{([^}]+)\}\}/g;
+  const matches = new Set<string>();
+  let match;
+  
+  while ((match = regex.exec(jsonString)) !== null) {
+    const parsed = parsePlaceholder(match[1].trim());
+    matches.add(parsed.baseName);
+  }
+  
+  return Array.from(matches);
+}
+
+// Extract full placeholders including methods
+export function extractFullPlaceholders(jsonString: string): string[] {
   const regex = /\{\{([^}]+)\}\}/g;
   const matches = new Set<string>();
   let match;
@@ -70,9 +87,32 @@ export function mergePlaceholders(
 ): string {
   let result = jsonTemplate;
   
-  for (const [key, value] of Object.entries(data)) {
-    const regex = new RegExp(`\\{\\{\\s*${escapeRegex(key)}\\s*\\}\\}`, 'g');
-    result = result.replace(regex, value);
+  // Find all placeholders with their methods
+  const regex = /\{\{([^}]+)\}\}/g;
+  const placeholders: { full: string; baseName: string; methods: string[] }[] = [];
+  let match;
+  
+  while ((match = regex.exec(jsonTemplate)) !== null) {
+    const parsed = parsePlaceholder(match[1].trim());
+    placeholders.push(parsed);
+  }
+  
+  // Replace each placeholder
+  for (const placeholder of placeholders) {
+    const value = data[placeholder.baseName];
+    if (value !== undefined) {
+      const transformedValue = applyMethods(value, placeholder.methods);
+      const fullPlaceholder = placeholder.methods.length > 0
+        ? `{{${placeholder.baseName}.${placeholder.methods.map(m => m + '()').join('.')}}}`
+        : `{{${placeholder.baseName}}}`;
+      // Also handle whitespace variations
+      const escapedBase = escapeRegex(placeholder.baseName);
+      const methodsPattern = placeholder.methods.length > 0
+        ? `\\.${placeholder.methods.map(m => escapeRegex(m) + '\\(\\)').join('\\.')}`
+        : '';
+      const placeholderRegex = new RegExp(`\\{\\{\\s*${escapedBase}${methodsPattern}\\s*\\}\\}`, 'g');
+      result = result.replace(placeholderRegex, transformedValue);
+    }
   }
   
   return result;
