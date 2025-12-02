@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Wand2, ArrowRight, Sparkles, List, Trash2 } from 'lucide-react';
+import { Wand2, ArrowRight, Sparkles, List, Trash2, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { parseCSV, extractPlaceholders, mergePlaceholders, validateJSON, formatJSON } from '@/lib/jsonMerge';
 import { resolveSystemPlaceholders, getSystemPlaceholderNames } from '@/lib/systemPlaceholders';
 import { findArraysInJson, mergeAsArray } from '@/lib/arrayMerge';
+import { GuidedTour, useTour } from '@/components/GuidedTour';
 
 const sampleJsonTemplate = `{
   "id": "{{uuid}}",
@@ -42,6 +43,15 @@ const Index = () => {
   const [csvData, setCsvData] = useState('');
   const [arrayMode, setArrayMode] = useState(false);
   const [selectedArrayPath, setSelectedArrayPath] = useState<string>('');
+  const { showTour, hasSeenTour, startTour, completeTour } = useTour();
+
+  // Show tour on first visit
+  useEffect(() => {
+    if (!hasSeenTour) {
+      const timer = setTimeout(() => startTour(), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [hasSeenTour, startTour]);
 
   const loadExample = () => {
     setJsonTemplate(arrayMode ? sampleArrayTemplate : sampleJsonTemplate);
@@ -122,6 +132,9 @@ const Index = () => {
                   Clear All
                 </Button>
               )}
+              <Button variant="ghost" size="sm" onClick={startTour} title="Start guided tour">
+                <HelpCircle className="h-4 w-4" />
+              </Button>
               {canMerge && <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="text-primary font-medium">{resultCount}</span>
                 <span>{resultCount === 1 ? 'file' : 'files'} ready</span>
@@ -136,12 +149,12 @@ const Index = () => {
           {/* Left Column - Inputs */}
           <div className="space-y-8">
             {/* JSON Template */}
-            <div className="bg-card rounded-xl p-6 border border-border">
+            <div className="bg-card rounded-xl p-6 border border-border" data-tour="json-editor">
               <JsonEditor value={jsonTemplate} onChange={setJsonTemplate} isValid={jsonValidation.valid} error={jsonValidation.error} placeholders={placeholders} csvHeaders={parsedCsv.headers} />
             </div>
 
             {/* CSV Data */}
-            <div className="bg-card rounded-xl p-6 border border-border">
+            <div className="bg-card rounded-xl p-6 border border-border" data-tour="csv-editor">
               <CsvEditor value={csvData} onChange={setCsvData} parsedData={parsedCsv} requiredHeaders={csvPlaceholders} />
             </div>
           </div>
@@ -149,7 +162,7 @@ const Index = () => {
           {/* Right Column - Results */}
           <div className="space-y-4">
             {/* Array Mode Toggle */}
-            <div className="bg-card rounded-xl p-6 border border-border">
+            <div className="bg-card rounded-xl p-6 border border-border" data-tour="array-mode">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -225,6 +238,7 @@ const Index = () => {
             </div>
 
             {/* Results */}
+            <div data-tour="results">
             {mergedResults.length > 0 ? <div className="bg-card rounded-xl p-6 border border-border">
                 <MergeResults results={mergedResults} csvRows={arrayMode ? [{ _arrayMode: 'combined' }] : parsedCsv.rows} />
               </div> : <div className="bg-card rounded-xl p-6 border border-border">
@@ -238,6 +252,7 @@ const Index = () => {
                   </p>
                 </div>
               </div>}
+            </div>
 
             {/* Instructions */}
             <div className="bg-muted/50 rounded-xl p-6 border border-border">
@@ -263,6 +278,8 @@ const Index = () => {
           </div>
         </div>
       </main>
+      
+      {showTour && <GuidedTour onComplete={completeTour} />}
     </div>;
 };
 export default Index;
