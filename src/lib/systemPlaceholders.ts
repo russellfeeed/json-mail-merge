@@ -46,6 +46,8 @@ export const systemPlaceholders: SystemPlaceholder[] = [
   }
 ];
 
+export const dateTimePlaceholderNames = ['currentDatetime', 'currentDate', 'currentTime', 'timestamp'];
+
 export function getSystemPlaceholderNames(): string[] {
   return systemPlaceholders.map(p => p.name);
 }

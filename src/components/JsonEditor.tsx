@@ -1,9 +1,10 @@
 import { useCallback, useState, useRef, KeyboardEvent } from 'react';
-import { Upload, FileJson, AlertCircle, Check, Download } from 'lucide-react';
+import { Upload, FileJson, AlertCircle, Check, Download, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { PlaceholderAutocomplete } from './PlaceholderAutocomplete';
-import { getSystemPlaceholderNames } from '@/lib/systemPlaceholders';
+import { getSystemPlaceholderNames, systemPlaceholders, dateTimePlaceholderNames } from '@/lib/systemPlaceholders';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface JsonEditorProps {
   value: string;
@@ -256,20 +257,56 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
             Detected Placeholders
           </p>
           <div className="flex flex-wrap gap-2">
-            {placeholders.map((p) => (
-              <span 
-                key={p} 
-                className={cn(
-                  "placeholder-tag",
-                  systemPlaceholderNames.includes(p) && "border-primary/50 bg-primary/10"
-                )}
-              >
-                {`{{${p}}}`}
-                {systemPlaceholderNames.includes(p) && (
-                  <span className="ml-1 text-[10px] text-primary">SYS</span>
-                )}
-              </span>
-            ))}
+            {placeholders.map((p) => {
+              const isDateTime = dateTimePlaceholderNames.includes(p);
+              const systemPlaceholder = systemPlaceholders.find(sp => sp.name === p);
+              
+              return (
+                <span 
+                  key={p} 
+                  className={cn(
+                    "placeholder-tag group relative",
+                    systemPlaceholderNames.includes(p) && "border-primary/50 bg-primary/10"
+                  )}
+                >
+                  {`{{${p}}}`}
+                  {systemPlaceholderNames.includes(p) && (
+                    <span className="ml-1 text-[10px] text-primary">SYS</span>
+                  )}
+                  {isDateTime && systemPlaceholder && (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button 
+                          className="ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:text-primary"
+                          title="Replace with fixed value"
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-3" align="start">
+                        <div className="space-y-2">
+                          <p className="text-xs text-muted-foreground">Replace with fixed value:</p>
+                          <code className="block px-2 py-1 bg-muted rounded text-sm font-mono">
+                            {systemPlaceholder.getValue()}
+                          </code>
+                          <Button 
+                            size="sm" 
+                            className="w-full"
+                            onClick={() => {
+                              const fixedValue = systemPlaceholder.getValue();
+                              const regex = new RegExp(`\\{\\{\\s*${p}\\s*\\}\\}`, 'g');
+                              onChange(value.replace(regex, fixedValue));
+                            }}
+                          >
+                            Use this value
+                          </Button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                </span>
+              );
+            })}
           </div>
         </div>
       )}
