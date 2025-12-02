@@ -5,12 +5,14 @@ import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
 import { MergeResults } from '@/components/MergeResults';
 import { parseCSV, extractPlaceholders, mergePlaceholders, validateJSON, formatJSON } from '@/lib/jsonMerge';
-import { resolveSystemPlaceholders } from '@/lib/systemPlaceholders';
+import { resolveSystemPlaceholders, getSystemPlaceholderNames } from '@/lib/systemPlaceholders';
 const Index = () => {
   const [jsonTemplate, setJsonTemplate] = useState('');
   const [csvData, setCsvData] = useState('');
   const jsonValidation = useMemo(() => validateJSON(jsonTemplate), [jsonTemplate]);
   const placeholders = useMemo(() => extractPlaceholders(jsonTemplate), [jsonTemplate]);
+  const systemPlaceholderNames = useMemo(() => getSystemPlaceholderNames(), []);
+  const csvPlaceholders = useMemo(() => placeholders.filter(p => !systemPlaceholderNames.includes(p)), [placeholders, systemPlaceholderNames]);
   const parsedCsv = useMemo(() => parseCSV(csvData), [csvData]);
   const canMerge = jsonValidation.valid && parsedCsv.rows.length > 0;
   const mergedResults = useMemo(() => {
@@ -57,7 +59,7 @@ const Index = () => {
 
             {/* CSV Data */}
             <div className="bg-card rounded-xl p-6 border border-border">
-              <CsvEditor value={csvData} onChange={setCsvData} parsedData={parsedCsv} requiredHeaders={placeholders} />
+              <CsvEditor value={csvData} onChange={setCsvData} parsedData={parsedCsv} requiredHeaders={csvPlaceholders} />
             </div>
           </div>
 
