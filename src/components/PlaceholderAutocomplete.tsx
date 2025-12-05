@@ -13,6 +13,7 @@ interface PlaceholderAutocompleteProps {
   selectedIndex: number;
   isMethodMode?: boolean;
   currentPlaceholder?: string;
+  isInsideArray?: boolean;
 }
 
 export function PlaceholderAutocomplete({
@@ -24,7 +25,8 @@ export function PlaceholderAutocomplete({
   onClose,
   selectedIndex,
   isMethodMode = false,
-  currentPlaceholder = ''
+  currentPlaceholder = '',
+  isInsideArray = false
 }: PlaceholderAutocompleteProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -59,15 +61,16 @@ export function PlaceholderAutocomplete({
           isUserInput: true,
           isRowInput: false
         })),
-        ...rowInputPlaceholders.map(p => ({
+        // Only include row inputs if inside array
+        ...(isInsideArray ? rowInputPlaceholders.map(p => ({
           name: p.name,
           displayName: p.name,
-          description: `${p.description} (${p.type})`,
+          description: `${p.description} (${p.type}) - Array only`,
           isSystem: false,
           isMethod: false,
           isUserInput: false,
           isRowInput: true
-        })),
+        })) : []),
         ...csvHeaders.map(h => ({
           name: h,
           displayName: h,
