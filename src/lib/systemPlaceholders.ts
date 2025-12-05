@@ -67,6 +67,19 @@ export const userInputPlaceholders: UserInputPlaceholder[] = [
   }
 ];
 
+export const rowInputPlaceholders: UserInputPlaceholder[] = [
+  {
+    name: 'rowInputString',
+    description: 'Prompts for text input per row',
+    type: 'string'
+  },
+  {
+    name: 'rowInputNumber',
+    description: 'Prompts for numeric input per row',
+    type: 'number'
+  }
+];
+
 export const dateTimePlaceholderNames = ['currentDatetime', 'currentDate', 'currentTime', 'timestamp'];
 
 export function getSystemPlaceholderNames(): string[] {
@@ -77,8 +90,12 @@ export function getUserInputPlaceholderNames(): string[] {
   return userInputPlaceholders.map(p => p.name);
 }
 
+export function getRowInputPlaceholderNames(): string[] {
+  return rowInputPlaceholders.map(p => p.name);
+}
+
 export function getAllPlaceholderNames(): string[] {
-  return [...getSystemPlaceholderNames(), ...getUserInputPlaceholderNames()];
+  return [...getSystemPlaceholderNames(), ...getUserInputPlaceholderNames(), ...getRowInputPlaceholderNames()];
 }
 
 export function resolveSystemPlaceholders(jsonString: string): string {

@@ -85,10 +85,11 @@ export function mergePlaceholders(
   jsonTemplate: string,
   data: Record<string, string>,
   userInputs?: Record<string, string>,
+  rowInputs?: Record<string, string>,
   numberPlaceholders?: string[]
 ): string {
   let result = jsonTemplate;
-  const allData = { ...data, ...userInputs };
+  const allData = { ...data, ...userInputs, ...rowInputs };
   
   // Find all placeholders with their methods
   const regex = /\{\{([^}]+)\}\}/g;

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { systemPlaceholders, userInputPlaceholders } from '@/lib/systemPlaceholders';
+import { systemPlaceholders, userInputPlaceholders, rowInputPlaceholders } from '@/lib/systemPlaceholders';
 import { getAvailableMethods } from '@/lib/placeholderMethods';
 
 interface PlaceholderAutocompleteProps {
@@ -37,7 +37,8 @@ export function PlaceholderAutocomplete({
         description: m.description,
         isSystem: false,
         isMethod: true,
-        isUserInput: false
+        isUserInput: false,
+        isRowInput: false
       }))
     : [
         ...systemPlaceholders.map(p => ({
@@ -46,7 +47,8 @@ export function PlaceholderAutocomplete({
           description: p.description,
           isSystem: true,
           isMethod: false,
-          isUserInput: false
+          isUserInput: false,
+          isRowInput: false
         })),
         ...userInputPlaceholders.map(p => ({
           name: p.name,
@@ -54,7 +56,17 @@ export function PlaceholderAutocomplete({
           description: `${p.description} (${p.type})`,
           isSystem: false,
           isMethod: false,
-          isUserInput: true
+          isUserInput: true,
+          isRowInput: false
+        })),
+        ...rowInputPlaceholders.map(p => ({
+          name: p.name,
+          displayName: p.name,
+          description: `${p.description} (${p.type})`,
+          isSystem: false,
+          isMethod: false,
+          isUserInput: false,
+          isRowInput: true
         })),
         ...csvHeaders.map(h => ({
           name: h,
@@ -62,7 +74,8 @@ export function PlaceholderAutocomplete({
           description: 'CSV column',
           isSystem: false,
           isMethod: false,
-          isUserInput: false
+          isUserInput: false,
+          isRowInput: false
         }))
       ];
 
@@ -143,6 +156,16 @@ export function PlaceholderAutocomplete({
                   : "bg-accent/50 text-accent-foreground"
               )}>
                 Method
+              </span>
+            )}
+            {suggestion.isRowInput && (
+              <span className={cn(
+                "text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide",
+                index === selectedIndex
+                  ? "bg-primary-foreground/20 text-primary-foreground"
+                  : "bg-cyan-500/20 text-cyan-600"
+              )}>
+                Row
               </span>
             )}
           </button>
