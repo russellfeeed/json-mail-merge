@@ -83,9 +83,12 @@ export function extractFullPlaceholders(jsonString: string): string[] {
 
 export function mergePlaceholders(
   jsonTemplate: string,
-  data: Record<string, string>
+  data: Record<string, string>,
+  userInputs?: Record<string, string>,
+  numberPlaceholders?: string[]
 ): string {
   let result = jsonTemplate;
+  const allData = { ...data, ...userInputs };
   
   // Find all placeholders with their methods
   const regex = /\{\{([^}]+)\}\}/g;
@@ -99,19 +102,28 @@ export function mergePlaceholders(
   
   // Replace each placeholder
   for (const placeholder of placeholders) {
-    const value = data[placeholder.baseName];
+    const value = allData[placeholder.baseName];
     if (value !== undefined) {
       const transformedValue = applyMethods(value, placeholder.methods);
-      const fullPlaceholder = placeholder.methods.length > 0
-        ? `{{${placeholder.baseName}.${placeholder.methods.map(m => m + '()').join('.')}}}`
-        : `{{${placeholder.baseName}}}`;
-      // Also handle whitespace variations
+      const isNumberPlaceholder = numberPlaceholders?.includes(placeholder.baseName);
+      
+      // Build regex for this placeholder
       const escapedBase = escapeRegex(placeholder.baseName);
       const methodsPattern = placeholder.methods.length > 0
         ? `\\.${placeholder.methods.map(m => escapeRegex(m) + '\\(\\)').join('\\.')}`
         : '';
-      const placeholderRegex = new RegExp(`\\{\\{\\s*${escapedBase}${methodsPattern}\\s*\\}\\}`, 'g');
-      result = result.replace(placeholderRegex, transformedValue);
+      
+      // For number placeholders, also match quoted versions and replace with unquoted number
+      if (isNumberPlaceholder && !isNaN(Number(transformedValue))) {
+        // Match both quoted and unquoted placeholder
+        const quotedRegex = new RegExp(`"\\{\\{\\s*${escapedBase}${methodsPattern}\\s*\\}\\}"`, 'g');
+        const unquotedRegex = new RegExp(`\\{\\{\\s*${escapedBase}${methodsPattern}\\s*\\}\\}`, 'g');
+        result = result.replace(quotedRegex, transformedValue);
+        result = result.replace(unquotedRegex, transformedValue);
+      } else {
+        const placeholderRegex = new RegExp(`\\{\\{\\s*${escapedBase}${methodsPattern}\\s*\\}\\}`, 'g');
+        result = result.replace(placeholderRegex, transformedValue);
+      }
     }
   }
   

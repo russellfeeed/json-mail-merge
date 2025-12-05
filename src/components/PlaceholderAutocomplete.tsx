@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { systemPlaceholders } from '@/lib/systemPlaceholders';
+import { systemPlaceholders, userInputPlaceholders } from '@/lib/systemPlaceholders';
 import { getAvailableMethods } from '@/lib/placeholderMethods';
 
 interface PlaceholderAutocompleteProps {
@@ -36,7 +36,8 @@ export function PlaceholderAutocomplete({
         displayName: m.name,
         description: m.description,
         isSystem: false,
-        isMethod: true
+        isMethod: true,
+        isUserInput: false
       }))
     : [
         ...systemPlaceholders.map(p => ({
@@ -44,14 +45,24 @@ export function PlaceholderAutocomplete({
           displayName: p.name,
           description: p.description,
           isSystem: true,
-          isMethod: false
+          isMethod: false,
+          isUserInput: false
+        })),
+        ...userInputPlaceholders.map(p => ({
+          name: p.name,
+          displayName: p.name,
+          description: `${p.description} (${p.type})`,
+          isSystem: false,
+          isMethod: false,
+          isUserInput: true
         })),
         ...csvHeaders.map(h => ({
           name: h,
           displayName: h,
           description: 'CSV column',
           isSystem: false,
-          isMethod: false
+          isMethod: false,
+          isUserInput: false
         }))
       ];
 
@@ -112,6 +123,16 @@ export function PlaceholderAutocomplete({
                   : "bg-primary/20 text-primary"
               )}>
                 System
+              </span>
+            )}
+            {suggestion.isUserInput && (
+              <span className={cn(
+                "text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide",
+                index === selectedIndex
+                  ? "bg-primary-foreground/20 text-primary-foreground"
+                  : "bg-amber-500/20 text-amber-600"
+              )}>
+                Input
               </span>
             )}
             {suggestion.isMethod && (
