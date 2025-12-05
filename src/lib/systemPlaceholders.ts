@@ -6,6 +6,12 @@ export interface SystemPlaceholder {
   getValue: () => string;
 }
 
+export interface UserInputPlaceholder {
+  name: string;
+  description: string;
+  type: 'string' | 'number';
+}
+
 export const systemPlaceholders: SystemPlaceholder[] = [
   {
     name: 'currentDatetime',
@@ -48,10 +54,31 @@ export const systemPlaceholders: SystemPlaceholder[] = [
   }
 ];
 
+export const userInputPlaceholders: UserInputPlaceholder[] = [
+  {
+    name: 'userInputString',
+    description: 'Prompts for a text input',
+    type: 'string'
+  },
+  {
+    name: 'userInputNumber',
+    description: 'Prompts for a numeric input',
+    type: 'number'
+  }
+];
+
 export const dateTimePlaceholderNames = ['currentDatetime', 'currentDate', 'currentTime', 'timestamp'];
 
 export function getSystemPlaceholderNames(): string[] {
   return systemPlaceholders.map(p => p.name);
+}
+
+export function getUserInputPlaceholderNames(): string[] {
+  return userInputPlaceholders.map(p => p.name);
+}
+
+export function getAllPlaceholderNames(): string[] {
+  return [...getSystemPlaceholderNames(), ...getUserInputPlaceholderNames()];
 }
 
 export function resolveSystemPlaceholders(jsonString: string): string {

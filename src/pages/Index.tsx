@@ -5,11 +5,12 @@ import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
 import { MergeResults } from '@/components/MergeResults';
 import { AppTour } from '@/components/AppTour';
+import { UserInputPrompt } from '@/components/UserInputPrompt';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { parseCSV, extractPlaceholders, extractFullPlaceholders, mergePlaceholders, validateJSON, formatJSON } from '@/lib/jsonMerge';
-import { resolveSystemPlaceholders, getSystemPlaceholderNames } from '@/lib/systemPlaceholders';
+import { resolveSystemPlaceholders, getSystemPlaceholderNames, getUserInputPlaceholderNames, userInputPlaceholders } from '@/lib/systemPlaceholders';
 import { findArraysInJson, mergeAsArray } from '@/lib/arrayMerge';
 
 const sampleJsonTemplate = `{
@@ -46,6 +47,7 @@ const Index = () => {
   const [csvData, setCsvData] = useState('');
   const [arrayMode, setArrayMode] = useState(false);
   const [selectedArrayPath, setSelectedArrayPath] = useState<string>('');
+  const [userInputValues, setUserInputValues] = useState<Record<string, string>>({});
 
   const loadExample = () => {
     setJsonTemplate(arrayMode ? sampleArrayTemplate : sampleJsonTemplate);
@@ -62,8 +64,33 @@ const Index = () => {
   const placeholders = useMemo(() => extractPlaceholders(jsonTemplate), [jsonTemplate]);
   const fullPlaceholders = useMemo(() => extractFullPlaceholders(jsonTemplate), [jsonTemplate]);
   const systemPlaceholderNames = useMemo(() => getSystemPlaceholderNames(), []);
-  const csvPlaceholders = useMemo(() => placeholders.filter(p => !systemPlaceholderNames.includes(p)), [placeholders, systemPlaceholderNames]);
+  const userInputPlaceholderNames = useMemo(() => getUserInputPlaceholderNames(), []);
+  const allSystemNames = useMemo(() => [...systemPlaceholderNames, ...userInputPlaceholderNames], [systemPlaceholderNames, userInputPlaceholderNames]);
+  const csvPlaceholders = useMemo(() => placeholders.filter(p => !allSystemNames.includes(p)), [placeholders, allSystemNames]);
   const parsedCsv = useMemo(() => parseCSV(csvData), [csvData]);
+  
+  // Detect which user input placeholders are used
+  const requiredUserInputs = useMemo(() => {
+    return placeholders.filter(p => userInputPlaceholderNames.includes(p));
+  }, [placeholders, userInputPlaceholderNames]);
+
+  // Get number placeholder names for proper JSON formatting
+  const numberPlaceholderNames = useMemo(() => {
+    return userInputPlaceholders.filter(p => p.type === 'number').map(p => p.name);
+  }, []);
+
+  // Check if all user inputs are valid
+  const userInputsValid = useMemo(() => {
+    return requiredUserInputs.every(inputName => {
+      const value = userInputValues[inputName];
+      if (!value) return false;
+      const config = userInputPlaceholders.find(p => p.name === inputName);
+      if (config?.type === 'number') {
+        return !isNaN(Number(value)) && value.trim() !== '';
+      }
+      return true;
+    });
+  }, [requiredUserInputs, userInputValues]);
   
   const availableArrays = useMemo(() => {
     if (!jsonValidation.valid) return [];
@@ -80,23 +107,23 @@ const Index = () => {
     }
   }, [arrayMode, availableArrays, selectedArrayPath]);
 
-  const canMerge = jsonValidation.valid && parsedCsv.rows.length > 0 && (!arrayMode || selectedArrayPath);
+  const canMerge = jsonValidation.valid && parsedCsv.rows.length > 0 && (!arrayMode || selectedArrayPath) && (requiredUserInputs.length === 0 || userInputsValid);
 
   const mergedResults = useMemo(() => {
     if (!canMerge) return [];
     
     if (arrayMode && selectedArrayPath) {
-      const result = mergeAsArray(jsonTemplate, parsedCsv.rows, selectedArrayPath);
+      const result = mergeAsArray(jsonTemplate, parsedCsv.rows, selectedArrayPath, userInputValues, numberPlaceholderNames);
       return [result];
     }
     
     const formattedTemplate = formatJSON(jsonTemplate);
     return parsedCsv.rows.map(row => {
-      const merged = mergePlaceholders(formattedTemplate, row);
+      const merged = mergePlaceholders(formattedTemplate, row, userInputValues, numberPlaceholderNames);
       const withSystemPlaceholders = resolveSystemPlaceholders(merged);
       return formatJSON(withSystemPlaceholders);
     });
-  }, [jsonTemplate, parsedCsv, canMerge, arrayMode, selectedArrayPath]);
+  }, [jsonTemplate, parsedCsv, canMerge, arrayMode, selectedArrayPath, userInputValues, numberPlaceholderNames]);
 
   const resultCount = arrayMode ? 1 : mergedResults.length;
 
@@ -204,6 +231,15 @@ const Index = () => {
               </div>
             </div>
 
+            {/* User Inputs Section */}
+            {requiredUserInputs.length > 0 && (
+              <UserInputPrompt
+                requiredInputs={requiredUserInputs}
+                values={userInputValues}
+                onChange={setUserInputValues}
+              />
+            )}
+
             {/* Status Banner */}
             <div className="bg-card rounded-xl p-6 border border-border" data-tour="merge-status">
               <div className="flex items-center justify-between gap-4">
@@ -214,6 +250,7 @@ const Index = () => {
                     {jsonTemplate && !jsonValidation.valid && 'Fix JSON errors to continue'}
                     {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length === 0 && 'Add CSV data to merge'}
                     {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length > 0 && arrayMode && !selectedArrayPath && 'Select an array to populate'}
+                    {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length > 0 && requiredUserInputs.length > 0 && !userInputsValid && 'Fill in required user inputs'}
                     {canMerge && (arrayMode 
                       ? `Ready to generate 1 JSON file with ${parsedCsv.rows.length} array items`
                       : `Ready to generate ${parsedCsv.rows.length} merged JSON files`
