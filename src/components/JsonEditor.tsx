@@ -6,6 +6,7 @@ import { PlaceholderAutocomplete } from './PlaceholderAutocomplete';
 import { getSystemPlaceholderNames, systemPlaceholders, dateTimePlaceholderNames } from '@/lib/systemPlaceholders';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { getAvailableMethods, parsePlaceholder } from '@/lib/placeholderMethods';
+import { isInsideJsonArray } from '@/lib/jsonArrayDetection';
 import {
   Select,
   SelectContent,
@@ -64,7 +65,8 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
     selectedIndex: 0,
     startPos: 0,
     isMethodMode: false,
-    currentPlaceholder: ''
+    currentPlaceholder: '',
+    isInsideArray: false
   });
 
   const systemPlaceholderNames = getSystemPlaceholderNames();
@@ -160,7 +162,8 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
               selectedIndex: 0,
               startPos: lastDoubleBrace,
               isMethodMode: true,
-              currentPlaceholder: placeholderName
+              currentPlaceholder: placeholderName,
+              isInsideArray: isInsideJsonArray(newValue, cursorPos)
             });
             return;
           }
@@ -175,7 +178,8 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
           selectedIndex: 0,
           startPos: lastDoubleBrace,
           isMethodMode: false,
-          currentPlaceholder: ''
+          currentPlaceholder: '',
+          isInsideArray: isInsideJsonArray(newValue, cursorPos)
         });
         return;
       }
@@ -356,6 +360,7 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
           selectedIndex={autocomplete.selectedIndex}
           isMethodMode={autocomplete.isMethodMode}
           currentPlaceholder={autocomplete.currentPlaceholder}
+          isInsideArray={autocomplete.isInsideArray}
         />
       </div>
 

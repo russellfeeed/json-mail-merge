@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Wand2, ArrowRight, Sparkles, List, Trash2 } from 'lucide-react';
+import { Wand2, ArrowRight, Sparkles, List, Trash2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { parseCSV, extractPlaceholders, extractFullPlaceholders, mergePlaceholders, validateJSON, formatJSON } from '@/lib/jsonMerge';
 import { resolveSystemPlaceholders, getSystemPlaceholderNames, getUserInputPlaceholderNames, getRowInputPlaceholderNames, userInputPlaceholders, rowInputPlaceholders } from '@/lib/systemPlaceholders';
 import { findArraysInJson, mergeAsArray } from '@/lib/arrayMerge';
+import { findRowInputsOutsideArrays } from '@/lib/jsonArrayDetection';
 
 const sampleJsonTemplate = `{
   "id": "{{uuid}}",
@@ -82,6 +83,14 @@ const Index = () => {
     return placeholders.filter(p => rowInputPlaceholderNames.includes(p));
   }, [placeholders, rowInputPlaceholderNames]);
 
+  // Validate row inputs are inside arrays
+  const rowInputPlacementErrors = useMemo(() => {
+    if (!jsonTemplate || requiredRowInputs.length === 0) return [];
+    return findRowInputsOutsideArrays(jsonTemplate);
+  }, [jsonTemplate, requiredRowInputs]);
+
+  const hasRowInputPlacementErrors = rowInputPlacementErrors.length > 0;
+
   // Get number placeholder names for proper JSON formatting
   const numberPlaceholderNames = useMemo(() => {
     const userNumbers = userInputPlaceholders.filter(p => p.type === 'number').map(p => p.name);
@@ -133,7 +142,7 @@ const Index = () => {
     }
   }, [arrayMode, availableArrays, selectedArrayPath]);
 
-  const canMerge = jsonValidation.valid && parsedCsv.rows.length > 0 && (!arrayMode || selectedArrayPath) && (requiredUserInputs.length === 0 || userInputsValid) && (requiredRowInputs.length === 0 || rowInputsValid);
+  const canMerge = jsonValidation.valid && parsedCsv.rows.length > 0 && (!arrayMode || selectedArrayPath) && (requiredUserInputs.length === 0 || userInputsValid) && (requiredRowInputs.length === 0 || rowInputsValid) && !hasRowInputPlacementErrors;
 
   const mergedResults = useMemo(() => {
     if (!canMerge) return [];
@@ -267,8 +276,31 @@ const Index = () => {
               />
             )}
 
-            {/* Row Inputs Section */}
-            {requiredRowInputs.length > 0 && parsedCsv.rows.length > 0 && (
+            {/* Row Input Placement Error */}
+            {hasRowInputPlacementErrors && (
+              <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-destructive">Invalid Placeholder Position</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Row input placeholders can only be used inside JSON arrays.
+                      Move the following to an array structure:
+                    </p>
+                    <ul className="mt-2 space-y-1">
+                      {rowInputPlacementErrors.map((err, i) => (
+                        <li key={i} className="text-sm font-mono text-destructive">
+                          {`{{${err.placeholder}}}`}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Row Inputs Section - only show if properly placed */}
+            {requiredRowInputs.length > 0 && parsedCsv.rows.length > 0 && !hasRowInputPlacementErrors && (
               <RowInputPrompt
                 requiredInputs={requiredRowInputs}
                 csvRows={parsedCsv.rows}
@@ -288,7 +320,8 @@ const Index = () => {
                     {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length === 0 && 'Add CSV data to merge'}
                     {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length > 0 && arrayMode && !selectedArrayPath && 'Select an array to populate'}
                     {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length > 0 && requiredUserInputs.length > 0 && !userInputsValid && 'Fill in required user inputs'}
-                    {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length > 0 && userInputsValid && requiredRowInputs.length > 0 && !rowInputsValid && 'Fill in row inputs for each CSV row'}
+                    {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length > 0 && userInputsValid && requiredRowInputs.length > 0 && !rowInputsValid && !hasRowInputPlacementErrors && 'Fill in row inputs for each CSV row'}
+                    {jsonTemplate && jsonValidation.valid && hasRowInputPlacementErrors && 'Row input placeholders must be inside arrays'}
                     {canMerge && (arrayMode 
                       ? `Ready to generate 1 JSON file with ${parsedCsv.rows.length} array items`
                       : `Ready to generate ${parsedCsv.rows.length} merged JSON files`
