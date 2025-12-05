@@ -6,6 +6,45 @@ import { PlaceholderAutocomplete } from './PlaceholderAutocomplete';
 import { getSystemPlaceholderNames, systemPlaceholders, dateTimePlaceholderNames } from '@/lib/systemPlaceholders';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { getAvailableMethods, parsePlaceholder } from '@/lib/placeholderMethods';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+const presetTemplates = [
+  {
+    id: 'cleardown',
+    name: 'Cleardown',
+    content: `{
+    "RunId": "Cleardown_Run",
+    "Device": "PrintDB",
+    "Version": 1,
+    "OutputType": "print",
+    "TimeStamp": "{{currentDatetime}}",
+    "Destination": "ClearDown_123456789",
+    "ServerName": "HO-CLOUDMIG03",
+    "Status": "Delete",
+    "Settings": {
+        "intra-run": false
+    },
+    "Files": [
+        {
+            "FileName": "{{FileName}}",
+            "Duplex": "simplex",
+            "InfoField": "Cleardown",
+            "Status": "Delete",
+            "Bin": 0,
+            "DocumentIds": [
+                "0"
+            ]
+        }
+    ]
+}`
+  }
+];
 
 interface JsonEditorProps {
   value: string;
@@ -221,6 +260,13 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
     }
   };
 
+  const handleTemplateSelect = (templateId: string) => {
+    const template = presetTemplates.find(t => t.id === templateId);
+    if (template) {
+      onChange(template.content);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -229,6 +275,18 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
           <h2 className="text-lg font-semibold">JSON Template</h2>
         </div>
         <div className="flex items-center gap-2">
+          <Select onValueChange={handleTemplateSelect}>
+            <SelectTrigger className="w-[160px] h-8 text-xs">
+              <SelectValue placeholder="Load template..." />
+            </SelectTrigger>
+            <SelectContent>
+              {presetTemplates.map(template => (
+                <SelectItem key={template.id} value={template.id}>
+                  {template.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {value && (
             <>
               <Button variant="ghost" size="sm" onClick={handleDownload} disabled={!isValid}>
