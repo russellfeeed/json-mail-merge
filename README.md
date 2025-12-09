@@ -109,6 +109,89 @@ Available methods: `toLowerCase`, `toUpperCase`, `trim`, `capitalize`, `titleCas
 
 Simply open [Lovable](https://lovable.dev/projects/d030c1cb-9bed-443b-b8c4-facdd3dfed2a) and click on Share -> Publish.
 
+## Self-Hosting Deployment (IIS, Apache, Nginx)
+
+This is a static single-page application (SPA) that can be deployed to any web server.
+
+### 1. Build the Production Bundle
+
+```sh
+npm run build
+```
+
+This creates a `dist/` folder containing all static files.
+
+### 2. Deploy to IIS
+
+1. Copy the contents of `dist/` to your IIS site folder (e.g., `C:\inetpub\wwwroot\json-merge-tool`)
+
+2. Create a `web.config` file in the site root for SPA routing:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <system.webServer>
+    <rewrite>
+      <rules>
+        <rule name="SPA Routes" stopProcessing="true">
+          <match url=".*" />
+          <conditions logicalGrouping="MatchAll">
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+          </conditions>
+          <action type="Rewrite" url="/" />
+        </rule>
+      </rules>
+    </rewrite>
+    <staticContent>
+      <mimeMap fileExtension=".json" mimeType="application/json" />
+    </staticContent>
+  </system.webServer>
+</configuration>
+```
+
+3. Ensure the **URL Rewrite** module is installed in IIS
+
+### 3. Deploy to Apache
+
+Create a `.htaccess` file in the site root:
+
+```apache
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+```
+
+### 4. Deploy to Nginx
+
+Add this to your server block:
+
+```nginx
+location / {
+  root /var/www/json-merge-tool;
+  index index.html;
+  try_files $uri $uri/ /index.html;
+}
+```
+
+### 5. Subfolder Deployment
+
+If deploying to a subfolder (e.g., `/tools/json-merge/`), update `vite.config.ts`:
+
+```typescript
+export default defineConfig({
+  base: '/tools/json-merge/',
+  // ... rest of config
+})
+```
+
+Then rebuild and update the rewrite rules to match your base path.
+
 ## Can I connect a custom domain to my Lovable project?
 
 Yes, you can!
