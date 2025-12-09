@@ -108,12 +108,10 @@
     @apply text-muted-foreground;
   }
 
-  .array-region {
-    @apply border-l-2 border-primary/30;
-    background-color: hsl(var(--primary) / 0.08);
-    margin-left: -2px;
-    padding-left: 2px;
-  }
+  .bracket-0 { color: hsl(174 72% 50%); } /* primary/cyan */
+  .bracket-1 { color: hsl(280 70% 60%); } /* purple */
+  .bracket-2 { color: hsl(45 90% 55%); } /* yellow/gold */
+  .bracket-3 { color: hsl(340 75% 55%); } /* pink */
 }
 
 @layer utilities {
