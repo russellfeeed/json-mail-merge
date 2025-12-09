@@ -1,7 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { cn } from '@/lib/utils';
-import { systemPlaceholders, userInputPlaceholders, rowInputPlaceholders } from '@/lib/systemPlaceholders';
-import { getAvailableMethods } from '@/lib/placeholderMethods';
+import { buildAllSuggestions, filterSuggestions } from '@/lib/placeholderSuggestions';
 
 interface PlaceholderAutocompleteProps {
   isOpen: boolean;
@@ -30,60 +29,14 @@ export function PlaceholderAutocomplete({
 }: PlaceholderAutocompleteProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const methods = getAvailableMethods();
+  const allSuggestions = useMemo(
+    () => buildAllSuggestions(isMethodMode, isInsideArray, csvHeaders),
+    [isMethodMode, isInsideArray, csvHeaders]
+  );
 
-  const allSuggestions = isMethodMode
-    ? methods.map(m => ({
-        name: m.name.replace('()', ''),
-        displayName: m.name,
-        description: m.description,
-        isSystem: false,
-        isMethod: true,
-        isUserInput: false,
-        isRowInput: false
-      }))
-    : [
-        ...systemPlaceholders.map(p => ({
-          name: p.name,
-          displayName: p.name,
-          description: p.description,
-          isSystem: true,
-          isMethod: false,
-          isUserInput: false,
-          isRowInput: false
-        })),
-        ...userInputPlaceholders.map(p => ({
-          name: p.name,
-          displayName: p.name,
-          description: `${p.description} (${p.type})`,
-          isSystem: false,
-          isMethod: false,
-          isUserInput: true,
-          isRowInput: false
-        })),
-        // Only include row inputs if inside array
-        ...(isInsideArray ? rowInputPlaceholders.map(p => ({
-          name: p.name,
-          displayName: p.name,
-          description: `${p.description} (${p.type}) - Array only`,
-          isSystem: false,
-          isMethod: false,
-          isUserInput: false,
-          isRowInput: true
-        })) : []),
-        ...csvHeaders.map(h => ({
-          name: h,
-          displayName: h,
-          description: 'CSV column',
-          isSystem: false,
-          isMethod: false,
-          isUserInput: false,
-          isRowInput: false
-        }))
-      ];
-
-  const filteredSuggestions = allSuggestions.filter(s =>
-    s.name.toLowerCase().includes(filter.toLowerCase())
+  const filteredSuggestions = useMemo(
+    () => filterSuggestions(allSuggestions, filter),
+    [allSuggestions, filter]
   );
 
   useEffect(() => {
