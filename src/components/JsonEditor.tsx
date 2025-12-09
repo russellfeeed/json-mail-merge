@@ -336,6 +336,7 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
             // Split by placeholders first, then colorize brackets
             const parts = value.split(/(\{\{[^}]*\}\})/);
             let bracketDepth = 0;
+            let braceDepth = 0;
             
             return parts.map((part, partIndex) => {
               if (/\{\{[^}]*\}\}/.test(part)) {
@@ -344,7 +345,7 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
                 );
               }
               
-              // Colorize brackets within this text segment
+              // Colorize brackets and braces within this text segment
               const chars = part.split('');
               let inString = false;
               let escapeNext = false;
@@ -365,16 +366,30 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
                   return <span key={`${partIndex}-${charIndex}`} className="text-foreground">{char}</span>;
                 }
                 
-                if (!inString && char === '[') {
-                  const colorClass = `bracket-${bracketDepth % 4}`;
-                  bracketDepth++;
-                  return <span key={`${partIndex}-${charIndex}`} className={colorClass}>{char}</span>;
-                }
-                
-                if (!inString && char === ']') {
-                  bracketDepth = Math.max(0, bracketDepth - 1);
-                  const colorClass = `bracket-${bracketDepth % 4}`;
-                  return <span key={`${partIndex}-${charIndex}`} className={colorClass}>{char}</span>;
+                if (!inString) {
+                  // Array brackets
+                  if (char === '[') {
+                    const colorClass = `bracket-${bracketDepth % 4}`;
+                    bracketDepth++;
+                    return <span key={`${partIndex}-${charIndex}`} className={colorClass}>{char}</span>;
+                  }
+                  if (char === ']') {
+                    bracketDepth = Math.max(0, bracketDepth - 1);
+                    const colorClass = `bracket-${bracketDepth % 4}`;
+                    return <span key={`${partIndex}-${charIndex}`} className={colorClass}>{char}</span>;
+                  }
+                  
+                  // Curly braces
+                  if (char === '{') {
+                    const colorClass = `brace-${braceDepth % 4}`;
+                    braceDepth++;
+                    return <span key={`${partIndex}-${charIndex}`} className={colorClass}>{char}</span>;
+                  }
+                  if (char === '}') {
+                    braceDepth = Math.max(0, braceDepth - 1);
+                    const colorClass = `brace-${braceDepth % 4}`;
+                    return <span key={`${partIndex}-${charIndex}`} className={colorClass}>{char}</span>;
+                  }
                 }
                 
                 return <span key={`${partIndex}-${charIndex}`} className="text-foreground">{char}</span>;
