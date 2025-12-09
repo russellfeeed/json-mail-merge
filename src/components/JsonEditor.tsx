@@ -3,6 +3,7 @@ import { Upload, FileJson, AlertCircle, Check, Download, Pencil } from 'lucide-r
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { PlaceholderAutocomplete } from './PlaceholderAutocomplete';
+import { PlaceholderHelpModal } from './PlaceholderHelpModal';
 import { getSystemPlaceholderNames, systemPlaceholders, dateTimePlaceholderNames } from '@/lib/systemPlaceholders';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { getAvailableMethods, parsePlaceholder } from '@/lib/placeholderMethods';
@@ -279,6 +280,7 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
           <h2 className="text-lg font-semibold">JSON Template</h2>
         </div>
         <div className="flex items-center gap-2">
+          <PlaceholderHelpModal />
           <Select onValueChange={handleTemplateSelect}>
             <SelectTrigger className="w-[160px] h-8 text-xs">
               <SelectValue placeholder="Load template..." />
