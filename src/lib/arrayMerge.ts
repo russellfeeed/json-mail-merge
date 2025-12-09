@@ -37,7 +37,10 @@ export function findArraysInJson(jsonString: string): ArrayPath[] {
 export function mergeAsArray(
   jsonTemplate: string,
   rows: Record<string, string>[],
-  arrayPath: string
+  arrayPath: string,
+  userInputs?: Record<string, string>,
+  rowInputValues?: Record<number, Record<string, string>>,
+  numberPlaceholders?: string[]
 ): string {
   try {
     const templateObj = JSON.parse(jsonTemplate);
@@ -53,8 +56,9 @@ export function mergeAsArray(
     const itemTemplate = JSON.stringify(arrayContainer[arrayKey][0]);
     
     // Generate array items for each row
-    const items = rows.map(row => {
-      let merged = mergePlaceholders(itemTemplate, row);
+    const items = rows.map((row, rowIndex) => {
+      const rowInputs = rowInputValues?.[rowIndex] || {};
+      let merged = mergePlaceholders(itemTemplate, row, userInputs, rowInputs, numberPlaceholders);
       merged = resolveSystemPlaceholders(merged);
       return JSON.parse(merged);
     });

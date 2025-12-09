@@ -1,22 +1,27 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Wand2, ArrowRight, Sparkles, List, Trash2 } from 'lucide-react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { Wand2, ArrowRight, Sparkles, List, Trash2, AlertCircle, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
 import { MergeResults } from '@/components/MergeResults';
-import { AppTour } from '@/components/AppTour';
+import { AppTour, AppTourRef } from '@/components/AppTour';
+import { UserInputPrompt } from '@/components/UserInputPrompt';
+import { RowInputPrompt } from '@/components/RowInputPrompt';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { parseCSV, extractPlaceholders, mergePlaceholders, validateJSON, formatJSON } from '@/lib/jsonMerge';
-import { resolveSystemPlaceholders, getSystemPlaceholderNames } from '@/lib/systemPlaceholders';
+import { parseCSV, extractPlaceholders, extractFullPlaceholders, mergePlaceholders, validateJSON, formatJSON } from '@/lib/jsonMerge';
+import { resolveSystemPlaceholders, getSystemPlaceholderNames, getUserInputPlaceholderNames, getRowInputPlaceholderNames, userInputPlaceholders, rowInputPlaceholders } from '@/lib/systemPlaceholders';
 import { findArraysInJson, mergeAsArray } from '@/lib/arrayMerge';
+import { findRowInputsOutsideArrays } from '@/lib/jsonArrayDetection';
 
 const sampleJsonTemplate = `{
   "id": "{{uuid}}",
   "name": "{{name}}",
+  "nameUpper": "{{name.toUpperCase()}}",
   "email": "{{email}}",
-  "role": "{{role}}",
+  "emailSlug": "{{email.slugify()}}",
+  "role": "{{role.capitalize()}}",
   "createdAt": "{{currentDatetime}}",
   "active": true
 }`;
@@ -26,9 +31,10 @@ const sampleArrayTemplate = `{
   "users": [
     {
       "id": "{{uuid}}",
-      "name": "{{name}}",
-      "email": "{{email}}",
-      "role": "{{role}}"
+      "name": "{{name.titleCase()}}",
+      "email": "{{email.toLowerCase()}}",
+      "role": "{{role.toUpperCase()}}",
+      "slug": "{{name.slugify()}}"
     }
   ]
 }`;
@@ -43,6 +49,9 @@ const Index = () => {
   const [csvData, setCsvData] = useState('');
   const [arrayMode, setArrayMode] = useState(false);
   const [selectedArrayPath, setSelectedArrayPath] = useState<string>('');
+  const [userInputValues, setUserInputValues] = useState<Record<string, string>>({});
+  const [rowInputValues, setRowInputValues] = useState<Record<number, Record<string, string>>>({});
+  const tourRef = useRef<AppTourRef>(null);
 
   const loadExample = () => {
     setJsonTemplate(arrayMode ? sampleArrayTemplate : sampleJsonTemplate);
@@ -57,9 +66,67 @@ const Index = () => {
 
   const jsonValidation = useMemo(() => validateJSON(jsonTemplate), [jsonTemplate]);
   const placeholders = useMemo(() => extractPlaceholders(jsonTemplate), [jsonTemplate]);
+  const fullPlaceholders = useMemo(() => extractFullPlaceholders(jsonTemplate), [jsonTemplate]);
   const systemPlaceholderNames = useMemo(() => getSystemPlaceholderNames(), []);
-  const csvPlaceholders = useMemo(() => placeholders.filter(p => !systemPlaceholderNames.includes(p)), [placeholders, systemPlaceholderNames]);
+  const userInputPlaceholderNames = useMemo(() => getUserInputPlaceholderNames(), []);
+  const rowInputPlaceholderNames = useMemo(() => getRowInputPlaceholderNames(), []);
+  const allSystemNames = useMemo(() => [...systemPlaceholderNames, ...userInputPlaceholderNames, ...rowInputPlaceholderNames], [systemPlaceholderNames, userInputPlaceholderNames, rowInputPlaceholderNames]);
+  const csvPlaceholders = useMemo(() => placeholders.filter(p => !allSystemNames.includes(p)), [placeholders, allSystemNames]);
   const parsedCsv = useMemo(() => parseCSV(csvData), [csvData]);
+  
+  // Detect which user input placeholders are used
+  const requiredUserInputs = useMemo(() => {
+    return placeholders.filter(p => userInputPlaceholderNames.includes(p));
+  }, [placeholders, userInputPlaceholderNames]);
+
+  // Detect which row input placeholders are used
+  const requiredRowInputs = useMemo(() => {
+    return placeholders.filter(p => rowInputPlaceholderNames.includes(p));
+  }, [placeholders, rowInputPlaceholderNames]);
+
+  // Validate row inputs are inside arrays
+  const rowInputPlacementErrors = useMemo(() => {
+    if (!jsonTemplate || requiredRowInputs.length === 0) return [];
+    return findRowInputsOutsideArrays(jsonTemplate);
+  }, [jsonTemplate, requiredRowInputs]);
+
+  const hasRowInputPlacementErrors = rowInputPlacementErrors.length > 0;
+
+  // Get number placeholder names for proper JSON formatting
+  const numberPlaceholderNames = useMemo(() => {
+    const userNumbers = userInputPlaceholders.filter(p => p.type === 'number').map(p => p.name);
+    const rowNumbers = rowInputPlaceholders.filter(p => p.type === 'number').map(p => p.name);
+    return [...userNumbers, ...rowNumbers];
+  }, []);
+
+  // Check if all user inputs are valid
+  const userInputsValid = useMemo(() => {
+    return requiredUserInputs.every(inputName => {
+      const value = userInputValues[inputName];
+      if (!value) return false;
+      const config = userInputPlaceholders.find(p => p.name === inputName);
+      if (config?.type === 'number') {
+        return !isNaN(Number(value)) && value.trim() !== '';
+      }
+      return true;
+    });
+  }, [requiredUserInputs, userInputValues]);
+
+  // Check if all row inputs are valid
+  const rowInputsValid = useMemo(() => {
+    if (requiredRowInputs.length === 0) return true;
+    return parsedCsv.rows.every((_, rowIndex) => {
+      return requiredRowInputs.every(inputName => {
+        const value = rowInputValues[rowIndex]?.[inputName];
+        if (!value) return false;
+        const config = rowInputPlaceholders.find(p => p.name === inputName);
+        if (config?.type === 'number') {
+          return !isNaN(Number(value)) && value.trim() !== '';
+        }
+        return true;
+      });
+    });
+  }, [requiredRowInputs, rowInputValues, parsedCsv.rows]);
   
   const availableArrays = useMemo(() => {
     if (!jsonValidation.valid) return [];
@@ -76,28 +143,29 @@ const Index = () => {
     }
   }, [arrayMode, availableArrays, selectedArrayPath]);
 
-  const canMerge = jsonValidation.valid && parsedCsv.rows.length > 0 && (!arrayMode || selectedArrayPath);
+  const canMerge = jsonValidation.valid && parsedCsv.rows.length > 0 && (!arrayMode || selectedArrayPath) && (requiredUserInputs.length === 0 || userInputsValid) && (requiredRowInputs.length === 0 || rowInputsValid) && !hasRowInputPlacementErrors;
 
   const mergedResults = useMemo(() => {
     if (!canMerge) return [];
     
     if (arrayMode && selectedArrayPath) {
-      const result = mergeAsArray(jsonTemplate, parsedCsv.rows, selectedArrayPath);
+      const result = mergeAsArray(jsonTemplate, parsedCsv.rows, selectedArrayPath, userInputValues, rowInputValues, numberPlaceholderNames);
       return [result];
     }
     
     const formattedTemplate = formatJSON(jsonTemplate);
-    return parsedCsv.rows.map(row => {
-      const merged = mergePlaceholders(formattedTemplate, row);
+    return parsedCsv.rows.map((row, rowIndex) => {
+      const rowInputs = rowInputValues[rowIndex] || {};
+      const merged = mergePlaceholders(formattedTemplate, row, userInputValues, rowInputs, numberPlaceholderNames);
       const withSystemPlaceholders = resolveSystemPlaceholders(merged);
       return formatJSON(withSystemPlaceholders);
     });
-  }, [jsonTemplate, parsedCsv, canMerge, arrayMode, selectedArrayPath]);
+  }, [jsonTemplate, parsedCsv, canMerge, arrayMode, selectedArrayPath, userInputValues, rowInputValues, numberPlaceholderNames]);
 
   const resultCount = arrayMode ? 1 : mergedResults.length;
 
   return <div className="min-h-screen bg-background">
-      <AppTour />
+      <AppTour ref={tourRef} />
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
@@ -114,6 +182,10 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" onClick={() => tourRef.current?.startTour()}>
+                <HelpCircle className="h-4 w-4 mr-1" />
+                Take Tour
+              </Button>
               <Button variant="outline" size="sm" onClick={loadExample} data-tour="load-example">
                 <Sparkles className="h-4 w-4 mr-1" />
                 Load Example
@@ -139,7 +211,7 @@ const Index = () => {
           <div className="space-y-8">
             {/* JSON Template */}
             <div className="bg-card rounded-xl p-6 border border-border" data-tour="json-editor">
-              <JsonEditor value={jsonTemplate} onChange={setJsonTemplate} isValid={jsonValidation.valid} error={jsonValidation.error} placeholders={placeholders} csvHeaders={parsedCsv.headers} />
+              <JsonEditor value={jsonTemplate} onChange={setJsonTemplate} isValid={jsonValidation.valid} error={jsonValidation.error} placeholders={fullPlaceholders} csvHeaders={parsedCsv.headers} />
             </div>
 
             {/* CSV Data */}
@@ -200,6 +272,48 @@ const Index = () => {
               </div>
             </div>
 
+            {/* User Inputs Section */}
+            {requiredUserInputs.length > 0 && (
+              <UserInputPrompt
+                requiredInputs={requiredUserInputs}
+                values={userInputValues}
+                onChange={setUserInputValues}
+              />
+            )}
+
+            {/* Row Input Placement Error */}
+            {hasRowInputPlacementErrors && (
+              <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-destructive">Invalid Placeholder Position</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Row input placeholders can only be used inside JSON arrays.
+                      Move the following to an array structure:
+                    </p>
+                    <ul className="mt-2 space-y-1">
+                      {rowInputPlacementErrors.map((err, i) => (
+                        <li key={i} className="text-sm font-mono text-destructive">
+                          {`{{${err.placeholder}}}`}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Row Inputs Section - only show if properly placed */}
+            {requiredRowInputs.length > 0 && parsedCsv.rows.length > 0 && !hasRowInputPlacementErrors && (
+              <RowInputPrompt
+                requiredInputs={requiredRowInputs}
+                csvRows={parsedCsv.rows}
+                values={rowInputValues}
+                onChange={setRowInputValues}
+              />
+            )}
+
             {/* Status Banner */}
             <div className="bg-card rounded-xl p-6 border border-border" data-tour="merge-status">
               <div className="flex items-center justify-between gap-4">
@@ -210,6 +324,9 @@ const Index = () => {
                     {jsonTemplate && !jsonValidation.valid && 'Fix JSON errors to continue'}
                     {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length === 0 && 'Add CSV data to merge'}
                     {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length > 0 && arrayMode && !selectedArrayPath && 'Select an array to populate'}
+                    {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length > 0 && requiredUserInputs.length > 0 && !userInputsValid && 'Fill in required user inputs'}
+                    {jsonTemplate && jsonValidation.valid && parsedCsv.rows.length > 0 && userInputsValid && requiredRowInputs.length > 0 && !rowInputsValid && !hasRowInputPlacementErrors && 'Fill in row inputs for each CSV row'}
+                    {jsonTemplate && jsonValidation.valid && hasRowInputPlacementErrors && 'Row input placeholders must be inside arrays'}
                     {canMerge && (arrayMode 
                       ? `Ready to generate 1 JSON file with ${parsedCsv.rows.length} array items`
                       : `Ready to generate ${parsedCsv.rows.length} merged JSON files`
