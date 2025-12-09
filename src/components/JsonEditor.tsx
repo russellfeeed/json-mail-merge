@@ -6,7 +6,7 @@ import { PlaceholderAutocomplete } from './PlaceholderAutocomplete';
 import { getSystemPlaceholderNames, systemPlaceholders, dateTimePlaceholderNames } from '@/lib/systemPlaceholders';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { getAvailableMethods, parsePlaceholder } from '@/lib/placeholderMethods';
-import { isInsideJsonArray, findArrayRegions } from '@/lib/jsonArrayDetection';
+import { isInsideJsonArray } from '@/lib/jsonArrayDetection';
 import {
   Select,
   SelectContent,
@@ -333,35 +333,52 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
           aria-hidden="true"
         >
           {(() => {
-            const arrayRegions = findArrayRegions(value);
-            
-            // Build segments with array region info
-            const segments: { text: string; isPlaceholder: boolean; inArray: boolean }[] = [];
+            // Split by placeholders first, then colorize brackets
             const parts = value.split(/(\{\{[^}]*\}\})/);
-            let pos = 0;
+            let bracketDepth = 0;
             
-            for (const part of parts) {
-              const isPlaceholder = /\{\{[^}]*\}\}/.test(part);
-              // Check if start of this segment is inside an array
-              const inArray = arrayRegions.some(r => pos >= r.start && pos < r.end);
-              segments.push({ text: part, isPlaceholder, inArray });
-              pos += part.length;
-            }
-            
-            return segments.map((seg, i) => {
-              if (seg.isPlaceholder) {
+            return parts.map((part, partIndex) => {
+              if (/\{\{[^}]*\}\}/.test(part)) {
                 return (
-                  <mark key={i} className="bg-primary/40 text-primary rounded px-0.5">{seg.text}</mark>
+                  <mark key={partIndex} className="bg-primary/40 text-primary rounded px-0.5">{part}</mark>
                 );
               }
-              if (seg.inArray) {
-                return (
-                  <span key={i} className="text-foreground array-region">{seg.text}</span>
-                );
-              }
-              return (
-                <span key={i} className="text-foreground">{seg.text}</span>
-              );
+              
+              // Colorize brackets within this text segment
+              const chars = part.split('');
+              let inString = false;
+              let escapeNext = false;
+              
+              return chars.map((char, charIndex) => {
+                if (escapeNext) {
+                  escapeNext = false;
+                  return <span key={`${partIndex}-${charIndex}`} className="text-foreground">{char}</span>;
+                }
+                
+                if (char === '\\' && inString) {
+                  escapeNext = true;
+                  return <span key={`${partIndex}-${charIndex}`} className="text-foreground">{char}</span>;
+                }
+                
+                if (char === '"') {
+                  inString = !inString;
+                  return <span key={`${partIndex}-${charIndex}`} className="text-foreground">{char}</span>;
+                }
+                
+                if (!inString && char === '[') {
+                  const colorClass = `bracket-${bracketDepth % 4}`;
+                  bracketDepth++;
+                  return <span key={`${partIndex}-${charIndex}`} className={colorClass}>{char}</span>;
+                }
+                
+                if (!inString && char === ']') {
+                  bracketDepth = Math.max(0, bracketDepth - 1);
+                  const colorClass = `bracket-${bracketDepth % 4}`;
+                  return <span key={`${partIndex}-${charIndex}`} className={colorClass}>{char}</span>;
+                }
+                
+                return <span key={`${partIndex}-${charIndex}`} className="text-foreground">{char}</span>;
+              });
             });
           })()}
         </div>
