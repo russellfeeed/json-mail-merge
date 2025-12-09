@@ -107,6 +107,13 @@
   .json-null {
     @apply text-muted-foreground;
   }
+
+  .array-region {
+    @apply border-l-2 border-primary/30;
+    background-color: hsl(var(--primary) / 0.08);
+    margin-left: -2px;
+    padding-left: 2px;
+  }
 }
 
 @layer utilities {

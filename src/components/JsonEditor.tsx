@@ -6,7 +6,7 @@ import { PlaceholderAutocomplete } from './PlaceholderAutocomplete';
 import { getSystemPlaceholderNames, systemPlaceholders, dateTimePlaceholderNames } from '@/lib/systemPlaceholders';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { getAvailableMethods, parsePlaceholder } from '@/lib/placeholderMethods';
-import { isInsideJsonArray } from '@/lib/jsonArrayDetection';
+import { isInsideJsonArray, findArrayRegions } from '@/lib/jsonArrayDetection';
 import {
   Select,
   SelectContent,
@@ -332,13 +332,38 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
           className="absolute inset-0 p-4 font-mono text-sm pointer-events-none overflow-hidden whitespace-pre-wrap break-words border border-transparent rounded-lg bg-muted"
           aria-hidden="true"
         >
-          {value.split(/(\{\{[^}]*\}\})/).map((part, i) => 
-            /\{\{[^}]*\}\}/.test(part) ? (
-              <mark key={i} className="bg-primary/40 text-primary rounded px-0.5">{part}</mark>
-            ) : (
-              <span key={i} className="text-foreground">{part}</span>
-            )
-          )}
+          {(() => {
+            const arrayRegions = findArrayRegions(value);
+            
+            // Build segments with array region info
+            const segments: { text: string; isPlaceholder: boolean; inArray: boolean }[] = [];
+            const parts = value.split(/(\{\{[^}]*\}\})/);
+            let pos = 0;
+            
+            for (const part of parts) {
+              const isPlaceholder = /\{\{[^}]*\}\}/.test(part);
+              // Check if start of this segment is inside an array
+              const inArray = arrayRegions.some(r => pos >= r.start && pos < r.end);
+              segments.push({ text: part, isPlaceholder, inArray });
+              pos += part.length;
+            }
+            
+            return segments.map((seg, i) => {
+              if (seg.isPlaceholder) {
+                return (
+                  <mark key={i} className="bg-primary/40 text-primary rounded px-0.5">{seg.text}</mark>
+                );
+              }
+              if (seg.inArray) {
+                return (
+                  <span key={i} className="text-foreground array-region">{seg.text}</span>
+                );
+              }
+              return (
+                <span key={i} className="text-foreground">{seg.text}</span>
+              );
+            });
+          })()}
         </div>
         <textarea
           ref={textareaRef}
