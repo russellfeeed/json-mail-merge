@@ -1,7 +1,5 @@
 /**
- * Determines if a cursor position is inside a JSON array structure.
- * This parses the text character by character, tracking bracket depth
- * while properly handling string literals.
+ * Detects if a cursor position is inside a JSON array
  */
 export function isInsideJsonArray(text: string, cursorPosition: number): boolean {
   let arrayDepth = 0;
@@ -36,7 +34,7 @@ export function isInsideJsonArray(text: string, cursorPosition: number): boolean
 }
 
 /**
- * Finds all row input placeholders that are positioned outside of array structures.
+ * Finds all row input placeholders that are placed outside of JSON arrays
  */
 export function findRowInputsOutsideArrays(jsonText: string): { placeholder: string; position: number }[] {
   const errors: { placeholder: string; position: number }[] = [];
@@ -53,45 +51,4 @@ export function findRowInputsOutsideArrays(jsonText: string): { placeholder: str
   }
   
   return errors;
-}
-
-/**
- * Finds all array regions in JSON text for visual highlighting.
- * Returns an array of { start, end } positions for each array bracket pair.
- */
-export function findArrayRegions(text: string): { start: number; end: number }[] {
-  const regions: { start: number; end: number }[] = [];
-  const stack: number[] = [];
-  let inString = false;
-  let escapeNext = false;
-  
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    
-    if (escapeNext) {
-      escapeNext = false;
-      continue;
-    }
-    
-    if (char === '\\' && inString) {
-      escapeNext = true;
-      continue;
-    }
-    
-    if (char === '"') {
-      inString = !inString;
-      continue;
-    }
-    
-    if (!inString) {
-      if (char === '[') {
-        stack.push(i);
-      } else if (char === ']' && stack.length > 0) {
-        const start = stack.pop()!;
-        regions.push({ start, end: i + 1 });
-      }
-    }
-  }
-  
-  return regions;
 }

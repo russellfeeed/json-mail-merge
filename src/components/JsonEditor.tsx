@@ -332,70 +332,13 @@ export function JsonEditor({ value, onChange, isValid, error, placeholders, csvH
           className="absolute inset-0 p-4 font-mono text-sm pointer-events-none overflow-hidden whitespace-pre-wrap break-words border border-transparent rounded-lg bg-muted"
           aria-hidden="true"
         >
-          {(() => {
-            // Split by placeholders first, then colorize brackets
-            const parts = value.split(/(\{\{[^}]*\}\})/);
-            let bracketDepth = 0;
-            let braceDepth = 0;
-            
-            return parts.map((part, partIndex) => {
-              if (/\{\{[^}]*\}\}/.test(part)) {
-                return (
-                  <mark key={partIndex} className="bg-primary/40 text-primary rounded px-0.5">{part}</mark>
-                );
-              }
-              
-              // Colorize brackets and braces within this text segment
-              const chars = part.split('');
-              let inString = false;
-              let escapeNext = false;
-              
-              return chars.map((char, charIndex) => {
-                if (escapeNext) {
-                  escapeNext = false;
-                  return <span key={`${partIndex}-${charIndex}`} className="text-foreground">{char}</span>;
-                }
-                
-                if (char === '\\' && inString) {
-                  escapeNext = true;
-                  return <span key={`${partIndex}-${charIndex}`} className="text-foreground">{char}</span>;
-                }
-                
-                if (char === '"') {
-                  inString = !inString;
-                  return <span key={`${partIndex}-${charIndex}`} className="text-foreground">{char}</span>;
-                }
-                
-                if (!inString) {
-                  // Array brackets
-                  if (char === '[') {
-                    const colorClass = `bracket-${bracketDepth % 4}`;
-                    bracketDepth++;
-                    return <span key={`${partIndex}-${charIndex}`} className={colorClass}>{char}</span>;
-                  }
-                  if (char === ']') {
-                    bracketDepth = Math.max(0, bracketDepth - 1);
-                    const colorClass = `bracket-${bracketDepth % 4}`;
-                    return <span key={`${partIndex}-${charIndex}`} className={colorClass}>{char}</span>;
-                  }
-                  
-                  // Curly braces
-                  if (char === '{') {
-                    const colorClass = `brace-${braceDepth % 4}`;
-                    braceDepth++;
-                    return <span key={`${partIndex}-${charIndex}`} className={colorClass}>{char}</span>;
-                  }
-                  if (char === '}') {
-                    braceDepth = Math.max(0, braceDepth - 1);
-                    const colorClass = `brace-${braceDepth % 4}`;
-                    return <span key={`${partIndex}-${charIndex}`} className={colorClass}>{char}</span>;
-                  }
-                }
-                
-                return <span key={`${partIndex}-${charIndex}`} className="text-foreground">{char}</span>;
-              });
-            });
-          })()}
+          {value.split(/(\{\{[^}]*\}\})/).map((part, i) => 
+            /\{\{[^}]*\}\}/.test(part) ? (
+              <mark key={i} className="bg-primary/40 text-primary rounded px-0.5">{part}</mark>
+            ) : (
+              <span key={i} className="text-foreground">{part}</span>
+            )
+          )}
         </div>
         <textarea
           ref={textareaRef}
