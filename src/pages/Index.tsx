@@ -1,10 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Wand2, ArrowRight, Sparkles, List, Trash2, AlertCircle } from 'lucide-react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { Wand2, ArrowRight, Sparkles, List, Trash2, AlertCircle, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
 import { MergeResults } from '@/components/MergeResults';
-import { AppTour } from '@/components/AppTour';
+import { AppTour, AppTourRef } from '@/components/AppTour';
 import { UserInputPrompt } from '@/components/UserInputPrompt';
 import { RowInputPrompt } from '@/components/RowInputPrompt';
 import { Switch } from '@/components/ui/switch';
@@ -51,6 +51,7 @@ const Index = () => {
   const [selectedArrayPath, setSelectedArrayPath] = useState<string>('');
   const [userInputValues, setUserInputValues] = useState<Record<string, string>>({});
   const [rowInputValues, setRowInputValues] = useState<Record<number, Record<string, string>>>({});
+  const tourRef = useRef<AppTourRef>(null);
 
   const loadExample = () => {
     setJsonTemplate(arrayMode ? sampleArrayTemplate : sampleJsonTemplate);
@@ -164,7 +165,7 @@ const Index = () => {
   const resultCount = arrayMode ? 1 : mergedResults.length;
 
   return <div className="min-h-screen bg-background">
-      <AppTour />
+      <AppTour ref={tourRef} />
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
@@ -181,6 +182,10 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" onClick={() => tourRef.current?.startTour()}>
+                <HelpCircle className="h-4 w-4 mr-1" />
+                Take Tour
+              </Button>
               <Button variant="outline" size="sm" onClick={loadExample} data-tour="load-example">
                 <Sparkles className="h-4 w-4 mr-1" />
                 Load Example

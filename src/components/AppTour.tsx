@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
 
 const tourSteps: Step[] = [
@@ -37,8 +37,19 @@ const tourSteps: Step[] = [
 
 const TOUR_STORAGE_KEY = 'json-merge-tour-completed';
 
-export const AppTour = () => {
+export interface AppTourRef {
+  startTour: () => void;
+}
+
+export const AppTour = forwardRef<AppTourRef>((_, ref) => {
   const [run, setRun] = useState(false);
+
+  useImperativeHandle(ref, () => ({
+    startTour: () => {
+      localStorage.removeItem(TOUR_STORAGE_KEY);
+      setRun(true);
+    }
+  }));
 
   useEffect(() => {
     const hasCompletedTour = localStorage.getItem(TOUR_STORAGE_KEY);
@@ -98,4 +109,6 @@ export const AppTour = () => {
       }}
     />
   );
-};
+});
+
+AppTour.displayName = 'AppTour';
