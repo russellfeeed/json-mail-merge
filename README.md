@@ -60,6 +60,51 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Adding New JSON Templates
+
+To add a new preset JSON template, edit the `presetTemplates` array in `src/components/JsonEditor.tsx`:
+
+```typescript
+const presetTemplates = [
+  {
+    id: 'my-template',      // Unique identifier (kebab-case)
+    name: 'My Template',    // Display name in dropdown
+    content: `{
+      "field": "{{placeholder}}",
+      "timestamp": "{{currentDatetime}}",
+      "items": [
+        {
+          "name": "{{name}}",
+          "rowNote": "{{rowInputString}}"
+        }
+      ]
+    }`
+  },
+  // ... other templates
+];
+```
+
+### Template Guidelines
+
+- **id**: Use kebab-case, must be unique
+- **name**: Human-readable name shown in the dropdown
+- **content**: Valid JSON string with placeholders
+
+### Available Placeholder Types
+
+| Placeholder | Example | Description |
+|------------|---------|-------------|
+| CSV Column | `{{name}}` | Replaced with value from CSV column |
+| System | `{{currentDatetime}}`, `{{uuid}}`, `{{timestamp}}` | Auto-generated values |
+| User Input | `{{userInputString}}`, `{{userInputNumber}}` | Single value for all rows |
+| Row Input | `{{rowInputString}}`, `{{rowInputNumber}}` | **Must be inside arrays** - unique value per row |
+
+### Placeholder Methods
+
+Placeholders support method chaining: `{{name.toUpperCase()}}`, `{{email.slugify().toLowerCase()}}`
+
+Available methods: `toLowerCase`, `toUpperCase`, `trim`, `capitalize`, `titleCase`, `slugify`, `camelCase`, `snakeCase`, `reverse`, `length`
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/d030c1cb-9bed-443b-b8c4-facdd3dfed2a) and click on Share -> Publish.
