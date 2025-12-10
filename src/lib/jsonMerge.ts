@@ -31,6 +31,7 @@ function parseCSVLine(line: string): string[] {
   const result: string[] = [];
   let current = '';
   let inQuotes = false;
+  let wasQuoted = false;
 
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
@@ -41,16 +42,22 @@ function parseCSVLine(line: string): string[] {
         i++;
       } else {
         inQuotes = !inQuotes;
+        if (inQuotes) {
+          wasQuoted = true;
+        }
       }
     } else if (char === ',' && !inQuotes) {
-      result.push(current.trim());
+      // Only trim unquoted fields
+      result.push(wasQuoted ? current : current.trim());
       current = '';
+      wasQuoted = false;
     } else {
       current += char;
     }
   }
   
-  result.push(current.trim());
+  // Only trim unquoted fields
+  result.push(wasQuoted ? current : current.trim());
   return result;
 }
 
@@ -122,8 +129,10 @@ export function mergePlaceholders(
         result = result.replace(quotedRegex, transformedValue);
         result = result.replace(unquotedRegex, transformedValue);
       } else {
+        // For string placeholders, escape JSON special characters
+        const escapedValue = escapeJsonString(transformedValue);
         const placeholderRegex = new RegExp(`\\{\\{\\s*${escapedBase}${methodsPattern}\\s*\\}\\}`, 'g');
-        result = result.replace(placeholderRegex, transformedValue);
+        result = result.replace(placeholderRegex, escapedValue);
       }
     }
   }
@@ -133,6 +142,17 @@ export function mergePlaceholders(
 
 function escapeRegex(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function escapeJsonString(value: string): string {
+  return value
+    .replace(/\\/g, '\\\\')  // Escape backslashes first
+    .replace(/"/g, '\\"')    // Escape double quotes
+    .replace(/\n/g, '\\n')   // Escape newlines
+    .replace(/\r/g, '\\r')   // Escape carriage returns
+    .replace(/\t/g, '\\t')   // Escape tabs
+    .replace(/\f/g, '\\f')   // Escape form feeds
+    .replace(/\x08/g, '\\b'); // Escape actual backspace characters (ASCII 8)
 }
 
 export function validateJSON(jsonString: string): { valid: boolean; error?: string } {
