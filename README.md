@@ -1,64 +1,77 @@
-# Welcome to your Lovable project
+# JSON-CSV Merge Tool
 
-## Project info
+A web-based tool for merging CSV data into JSON templates with powerful placeholder substitution, transformations, and batch processing capabilities.
 
-**URL**: https://lovable.dev/projects/d030c1cb-9bed-443b-b8c4-facdd3dfed2a
+## Overview
 
-## How can I edit this code?
+The JSON-CSV Merge Tool allows you to create dynamic JSON outputs by combining CSV data with JSON templates. It's perfect for generating configuration files, API payloads, test data, or any structured JSON content from tabular data sources.
 
-There are several ways of editing your application.
+## Features
 
-**Use Lovable**
+### Core Functionality
+- **JSON Template Editor** - Write or paste JSON templates with syntax validation and placeholder highlighting
+- **CSV Data Editor** - Import CSV files via drag-and-drop or paste directly, with tabular preview
+- **Real-time Validation** - Instant feedback on JSON validity and missing CSV columns
+- **Batch Processing** - Generate individual JSON files per CSV row or combine into a single array
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d030c1cb-9bed-443b-b8c4-facdd3dfed2a) and start prompting.
+### Placeholder System
 
-Changes made via Lovable will be committed automatically to this repo.
+| Type | Example | Description |
+|------|---------|-------------|
+| **CSV Column** | `{{name}}`, `{{email}}` | Replaced with values from CSV columns |
+| **System** | `{{currentDatetime}}`, `{{uuid}}`, `{{timestamp}}` | Auto-generated dynamic values |
+| **User Input** | `{{userInputString}}`, `{{userInputNumber}}` | Single value applied to all rows |
+| **Row Input** | `{{rowInputString}}`, `{{rowInputNumber}}` | Unique value per row (must be inside arrays) |
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### Placeholder Methods
+Transform placeholder values with chainable methods:
+```
+{{name.toUpperCase()}}
+{{email.slugify().toLowerCase()}}
+{{title.titleCase()}}
 ```
 
-**Edit a file directly in GitHub**
+Available methods: `toLowerCase`, `toUpperCase`, `trim`, `capitalize`, `titleCase`, `slugify`, `camelCase`, `snakeCase`, `reverse`, `length`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Array Mode
+Generate a single JSON file containing an array with one item per CSV row, instead of multiple separate files.
 
-**Use GitHub Codespaces**
+### Additional Features
+- **Autocomplete** - Suggestions appear when typing `{{` for quick placeholder insertion
+- **Preset Templates** - Quick-start with predefined JSON structures
+- **Download Options** - Export individual results or all as a combined JSON array
+- **Sample Data** - Load example templates and CSV data to explore features
+- **Interactive Tour** - Guided walkthrough for first-time users
+- **Fixed Timestamps** - Lock date/time placeholders to specific values for deterministic output
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## Development
 
-This project is built with:
-
+### Tech Stack
 - Vite
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
+
+### Getting Started
+
+```sh
+# Clone the repository
+git clone <YOUR_GIT_URL>
+
+# Navigate to the project directory
+cd <YOUR_PROJECT_NAME>
+
+# Install dependencies
+npm i
+
+# Start the development server
+npm run dev
+```
+
+---
 
 ## Adding New JSON Templates
 
@@ -84,36 +97,18 @@ const presetTemplates = [
 ];
 ```
 
-### Template Guidelines
+---
 
-- **id**: Use kebab-case, must be unique
-- **name**: Human-readable name shown in the dropdown
-- **content**: Valid JSON string with placeholders
+## Deployment
 
-### Available Placeholder Types
+### Lovable Publish
+Open [Lovable](https://lovable.dev/projects/d030c1cb-9bed-443b-b8c4-facdd3dfed2a) and click Share → Publish.
 
-| Placeholder | Example | Description |
-|------------|---------|-------------|
-| CSV Column | `{{name}}` | Replaced with value from CSV column |
-| System | `{{currentDatetime}}`, `{{uuid}}`, `{{timestamp}}` | Auto-generated values |
-| User Input | `{{userInputString}}`, `{{userInputNumber}}` | Single value for all rows |
-| Row Input | `{{rowInputString}}`, `{{rowInputNumber}}` | **Must be inside arrays** - unique value per row |
-
-### Placeholder Methods
-
-Placeholders support method chaining: `{{name.toUpperCase()}}`, `{{email.slugify().toLowerCase()}}`
-
-Available methods: `toLowerCase`, `toUpperCase`, `trim`, `capitalize`, `titleCase`, `slugify`, `camelCase`, `snakeCase`, `reverse`, `length`
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/d030c1cb-9bed-443b-b8c4-facdd3dfed2a) and click on Share -> Publish.
-
-## Self-Hosting Deployment (IIS, Apache, Nginx)
+### Self-Hosting (IIS, Apache, Nginx)
 
 This is a static single-page application (SPA) that can be deployed to any web server.
 
-### 1. Build the Production Bundle
+#### 1. Build the Production Bundle
 
 ```sh
 npm run build
@@ -121,11 +116,10 @@ npm run build
 
 This creates a `dist/` folder containing all static files.
 
-### 2. Deploy to IIS
+#### 2. Deploy to IIS
 
-1. Copy the contents of `dist/` to your IIS site folder (e.g., `C:\inetpub\wwwroot\json-merge-tool`)
-
-2. Create a `web.config` file in the site root for SPA routing:
+1. Copy the contents of `dist/` to your IIS site folder
+2. Create a `web.config` file in the site root:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -152,7 +146,7 @@ This creates a `dist/` folder containing all static files.
 
 3. Ensure the **URL Rewrite** module is installed in IIS
 
-### 3. Deploy to Apache
+#### 3. Deploy to Apache
 
 Create a `.htaccess` file in the site root:
 
@@ -167,7 +161,7 @@ Create a `.htaccess` file in the site root:
 </IfModule>
 ```
 
-### 4. Deploy to Nginx
+#### 4. Deploy to Nginx
 
 Add this to your server block:
 
@@ -179,7 +173,7 @@ location / {
 }
 ```
 
-### 5. Subfolder Deployment
+#### 5. Subfolder Deployment
 
 If deploying to a subfolder (e.g., `/tools/json-merge/`), update `vite.config.ts`:
 
@@ -192,10 +186,23 @@ export default defineConfig({
 
 Then rebuild and update the rewrite rules to match your base path.
 
-## Can I connect a custom domain to my Lovable project?
+---
 
-Yes, you can!
+## Specifications & Design Documents
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Detailed specifications and design documents are available in the `.kiro/specs/` folder, generated by [kiro.dev](https://kiro.dev). These documents provide in-depth requirements and architectural designs for each feature:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+| Spec | Description |
+|------|-------------|
+| `json-csv-merge-tool/` | Core requirements and task breakdown for the merge tool |
+| `placeholder-transformations/` | Design for placeholder method chaining and transformations |
+| `user-and-row-inputs/` | Requirements for user input and row input placeholder types |
+| `user-experience-enhancements/` | UX improvements including tour and autocomplete |
+
+---
+
+## Custom Domain
+
+To connect a custom domain, navigate to Project > Settings > Domains in Lovable and click Connect Domain.
+
+Read more: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
