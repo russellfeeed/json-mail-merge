@@ -198,8 +198,14 @@
 
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Implement placeholder transformation tests
-  - [ ] 7.1 Write basic transformation tests
+- [x] 7. Implement placeholder transformation tests
+
+
+
+
+  - [x] 7.1 Write basic transformation tests
+
+
     - Test system placeholders generate appropriate values (UUID, timestamp, etc.) (example test)
     - Test invalid transformation methods are handled gracefully (example test)
     - _Requirements: 5.3, 5.4_
@@ -218,8 +224,14 @@
     - Verify transformations are applied left-to-right
     - Run minimum 10 iterations
 
-- [ ] 8. Implement user input and row input tests
-  - [ ] 8.1 Write basic user input tests
+- [x] 8. Implement user input and row input tests
+
+
+
+
+  - [x] 8.1 Write basic user input tests
+
+
     - Test canceling input prompt is handled gracefully (example test)
     - Test multiple input prompts appear in sequence (example test)
     - _Requirements: 6.4, 6.5_
@@ -238,8 +250,13 @@
     - Verify system prompts exactly N times
     - Run minimum 10 iterations
 
-- [ ] 9. Implement tour and help feature tests
-  - [ ] 9.1 Write tour and help tests
+- [x] 9. Implement tour and help feature tests
+
+
+
+
+  - [x] 9.1 Write tour and help tests
+
     - Test first visit offers interactive tour (example test)
     - Test starting tour guides through features (example test)
     - Test accessing placeholder help displays documentation (example test)
