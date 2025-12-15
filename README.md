@@ -94,6 +94,9 @@ npm run test:e2e:debug
 
 # View test report
 npm run test:e2e:report
+
+# Verify CI/CD setup
+npm run test:ci-setup
 ```
 
 #### Test Structure

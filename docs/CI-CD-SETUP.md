@@ -24,7 +24,8 @@ The workflow is triggered on:
 4. **Install Playwright Browsers**: Downloads required browser binaries
 5. **Build Application**: Creates production build to test against
 6. **Run Tests**: Executes the complete Playwright test suite
-7. **Upload Artifacts**: Saves test reports and results for analysis
+7. **List Artifacts**: Debug step to show generated test files
+8. **Upload Artifacts**: Saves test reports and results for analysis
 
 ### Test Execution Environment
 
@@ -92,8 +93,9 @@ Consider setting up branch protection rules in GitHub:
 - **Solution**: Increase timeout in `playwright.config.ts` or optimize tests
 
 #### Artifact Upload Failures
-- **Cause**: Large file sizes or network issues
-- **Solution**: Check artifact sizes and GitHub storage limits
+- **Cause**: Large file sizes, network issues, or empty directories
+- **Solution**: Check artifact sizes, GitHub storage limits, and ensure tests generate output files
+- **Note**: The workflow includes `if-no-files-found: warn` to handle cases where directories might be empty
 
 ### Debugging Failed Tests
 
