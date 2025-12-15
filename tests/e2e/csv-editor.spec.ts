@@ -189,8 +189,8 @@ test.describe('CSV Editor', () => {
             
             // Create CSV content with proper escaping for special characters
             const escapeCsvValue = (value: string): string => {
-              // If value contains comma, newline, or quote, wrap in quotes and escape internal quotes
-              if (value.includes(',') || value.includes('\n') || value.includes('"')) {
+              // If value contains comma, newline, quote, or is whitespace-only, wrap in quotes and escape internal quotes
+              if (value.includes(',') || value.includes('\n') || value.includes('"') || value.trim() !== value || value.trim() === '') {
                 return `"${value.replace(/"/g, '""')}"`;
               }
               return value;
