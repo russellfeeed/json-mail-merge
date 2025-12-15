@@ -30,13 +30,29 @@ jobs:
     - name: Run Playwright tests
       run: npm run test:e2e
     
+    - name: Ensure artifact directories exist
+      if: always()
+      run: |
+        mkdir -p playwright-report test-results
+        echo "Created artifact directories"
+    
     - name: List test artifacts
       if: always()
       run: |
         echo "Contents of playwright-report/:"
-        ls -la playwright-report/ || echo "playwright-report/ not found"
+        if [ -d "playwright-report" ]; then
+          ls -la playwright-report/
+          find playwright-report -type f -name "*.html" -o -name "*.json" -o -name "*.png" | head -10
+        else
+          echo "playwright-report/ directory not found"
+        fi
         echo "Contents of test-results/:"
-        ls -la test-results/ || echo "test-results/ not found"
+        if [ -d "test-results" ]; then
+          ls -la test-results/
+          find test-results -type f -name "*.json" -o -name "*.png" -o -name "*.webm" | head -10
+        else
+          echo "test-results/ directory not found"
+        fi
     
     - name: Upload Playwright Report
       uses: actions/upload-artifact@v4
@@ -45,7 +61,7 @@ jobs:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
-        if-no-files-found: warn
+        if-no-files-found: ignore
     
     - name: Upload Test Results
       uses: actions/upload-artifact@v4
@@ -54,4 +70,4 @@ jobs:
         name: test-results
         path: test-results/
         retention-days: 30
-        if-no-files-found: warn
+        if-no-files-found: ignore
