@@ -35,6 +35,13 @@ export default defineConfig({
 
     /* Capture screenshot only on failure */
     screenshot: 'only-on-failure',
+
+    /* Enable coverage collection for E2E tests */
+    contextOptions: {
+      // Enable code coverage collection from the browser
+      recordVideo: undefined, // Disable video to reduce overhead
+      recordHar: undefined,   // Disable HAR to reduce overhead
+    },
   },
 
   /* Configure projects for major browsers */
@@ -42,13 +49,31 @@ export default defineConfig({
     // CI: Only run Chromium for faster execution
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        // Enable coverage collection in Chromium
+        launchOptions: {
+          args: [
+            '--enable-precise-memory-info',
+            '--js-flags=--expose-gc',
+          ],
+        },
+      },
     },
   ] : [
     // Local: Run all browsers for comprehensive testing
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        // Enable coverage collection in Chromium
+        launchOptions: {
+          args: [
+            '--enable-precise-memory-info',
+            '--js-flags=--expose-gc',
+          ],
+        },
+      },
     },
     {
       name: 'firefox',

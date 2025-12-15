@@ -4,6 +4,7 @@
  */
 
 import { Page, Locator, expect } from '@playwright/test';
+import { CoverageHelpers } from './coverage-helpers';
 
 export class MergeToolPage {
   readonly page: Page;
@@ -134,6 +135,19 @@ export class MergeToolPage {
   async goto(): Promise<void> {
     await this.page.goto('/');
     await this.page.waitForLoadState('networkidle');
+  }
+
+  // Coverage collection methods
+  async startCoverageCollection(): Promise<void> {
+    await CoverageHelpers.startCoverage(this.page);
+  }
+
+  async stopCoverageCollection(): Promise<void> {
+    return await CoverageHelpers.stopCoverage(this.page);
+  }
+
+  async saveCoverageData(testName: string): Promise<void> {
+    await CoverageHelpers.saveCoverageData(testName);
   }
 
   // JSON Editor methods
@@ -376,52 +390,62 @@ export class MergeToolPage {
   async skipTour(): Promise<void> {
     try {
       // Wait a bit for the tour to potentially appear
-      await this.page.waitForTimeout(1000);
+      await this.page.waitForTimeout(500);
       
-      // Look for the tour portal and any tour elements
+      // Look for the tour portal and spotlight elements
       const tourPortal = this.page.locator('#react-joyride-portal');
+      const spotlight = this.page.locator('[data-test-id="spotlight"]');
       const skipButton = this.page.locator('button:has-text("Skip tour")');
       const closeButton = this.page.locator('button[aria-label="Close"], button:has-text("Close")');
-      const tourOverlay = this.page.locator('[class*="react-joyride"]');
-      const spotlight = this.page.locator('[data-test-id="spotlight"]');
       
-      // Multiple attempts to dismiss the tour
-      for (let attempt = 0; attempt < 3; attempt++) {
-        // Check if tour elements are present
-        const tourVisible = await tourPortal.isVisible().catch(() => false) || 
-                           await tourOverlay.isVisible().catch(() => false) ||
-                           await spotlight.isVisible().catch(() => false);
-        
-        if (!tourVisible) {
-          break; // Tour is gone, we're done
-        }
-        
+      // Check if tour is present
+      const tourVisible = await tourPortal.isVisible({ timeout: 1000 }).catch(() => false);
+      
+      if (!tourVisible) {
+        return; // No tour present, exit early
+      }
+      
+      // Multiple attempts to dismiss the tour completely
+      for (let attempt = 0; attempt < 5; attempt++) {
         // Try different dismissal methods
-        if (await skipButton.isVisible().catch(() => false)) {
+        if (await skipButton.isVisible({ timeout: 500 }).catch(() => false)) {
           await skipButton.click();
-          await this.page.waitForTimeout(500);
-        } else if (await closeButton.isVisible().catch(() => false)) {
+        } else if (await closeButton.isVisible({ timeout: 500 }).catch(() => false)) {
           await closeButton.click();
-          await this.page.waitForTimeout(500);
         } else {
           // Try pressing Escape multiple times
           await this.page.keyboard.press('Escape');
-          await this.page.waitForTimeout(200);
           await this.page.keyboard.press('Escape');
-          await this.page.waitForTimeout(500);
+        }
+        
+        await this.page.waitForTimeout(200);
+        
+        // Check if tour is gone
+        const stillVisible = await tourPortal.isVisible({ timeout: 500 }).catch(() => false) ||
+                            await spotlight.isVisible({ timeout: 500 }).catch(() => false);
+        
+        if (!stillVisible) {
+          break; // Tour is gone, we're done
         }
       }
       
-      // Final check - if tour is still there, try to force dismiss it
-      if (await tourPortal.isVisible().catch(() => false)) {
-        // Try clicking outside the tour area to dismiss it
-        await this.page.click('body', { position: { x: 10, y: 10 } });
-        await this.page.waitForTimeout(300);
-      }
+      // Final aggressive attempt - remove the tour elements from DOM if they still exist
+      await this.page.evaluate(() => {
+        const portal = document.getElementById('react-joyride-portal');
+        if (portal) {
+          portal.remove();
+        }
+        // Also remove any spotlight elements
+        const spotlights = document.querySelectorAll('[data-test-id="spotlight"]');
+        spotlights.forEach(el => el.remove());
+      });
+      
+      // Wait a bit to ensure DOM changes take effect
+      await this.page.waitForTimeout(300);
       
     } catch (error) {
-      // If tour handling fails, continue anyway
-      console.log('Tour dismissal failed, continuing:', error);
+      // If tour handling fails, continue anyway - don't let it block tests
+      console.log('Tour dismissal failed, continuing:', error.message);
     }
   }
 
