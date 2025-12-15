@@ -1,5 +1,7 @@
 # JSON-CSV Merge Tool
 
+[![Playwright Tests](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME/actions/workflows/playwright.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME/actions/workflows/playwright.yml)
+
 A web-based tool for merging CSV data into JSON templates with powerful placeholder substitution, transformations, and batch processing capabilities.
 
 ## Overview
@@ -70,6 +72,72 @@ npm i
 # Start the development server
 npm run dev
 ```
+
+### Testing
+
+This project uses Playwright for end-to-end testing to ensure all user workflows function correctly across different browsers.
+
+#### Running Tests Locally
+
+```sh
+# Run all E2E tests
+npm run test:e2e
+
+# Run tests with UI mode (interactive)
+npm run test:e2e:ui
+
+# Run tests in headed mode (see browser)
+npm run test:e2e:headed
+
+# Run tests in debug mode
+npm run test:e2e:debug
+
+# View test report
+npm run test:e2e:report
+```
+
+#### Test Structure
+
+Tests are organized in the `tests/` directory:
+
+```
+tests/
+├── e2e/                          # End-to-end test files
+│   ├── json-editor.spec.ts       # JSON editor functionality
+│   ├── csv-editor.spec.ts        # CSV editor functionality
+│   ├── merge-workflow.spec.ts    # Complete merge workflows
+│   ├── placeholder-transformations.spec.ts  # Placeholder methods
+│   ├── user-inputs.spec.ts       # User/row input prompts
+│   ├── tour-help.spec.ts         # Tour and help features
+│   └── error-handling.spec.ts    # Error scenarios and edge cases
+├── fixtures/                     # Test utilities and data
+│   ├── test-data.ts              # Sample JSON templates and CSV data
+│   ├── page-objects.ts           # Page object models
+│   └── test-helpers.ts           # Utility functions
+```
+
+#### CI/CD Integration
+
+The project includes automated testing via GitHub Actions:
+
+- **Triggers**: Tests run on pushes to `main`/`develop` branches and all pull requests
+- **Browsers**: Tests execute on Chromium, Firefox, and WebKit
+- **Artifacts**: Test reports, screenshots, and traces are automatically uploaded
+- **Timeout**: Tests have a 60-minute timeout to handle comprehensive test suites
+
+#### Test Reports
+
+When tests run in CI or locally, detailed HTML reports are generated including:
+- Test execution results with pass/fail status
+- Screenshots of failures for visual debugging
+- Execution traces for step-by-step analysis
+- Performance metrics and timing information
+
+Access reports by:
+1. **Locally**: Run `npm run test:e2e:report` after tests complete
+2. **CI/CD**: Download artifacts from the GitHub Actions run page
+
+For detailed CI/CD setup information, see [CI/CD Setup Documentation](docs/CI-CD-SETUP.md).
 
 ---
 
