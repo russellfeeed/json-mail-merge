@@ -152,26 +152,50 @@
     - Run minimum 10 iterations
 
 - [ ] 5. Implement merge workflow tests
-  - [ ] 5.1 Write basic merge workflow tests
+
+
+  - [x] 5.1 Write basic merge workflow tests
+
+
+
     - Test merging simple JSON template with simple CSV (example test)
     - Test download results button triggers download (example test)
     - _Requirements: 4.1, 4.4_
   
-  - [ ]* 5.2 Write property test for placeholder replacement
+  - [x] 5.2 Write property test for placeholder replacement
+
+
+
+
+
+
     - **Property 4: Placeholder replacement completeness**
     - **Validates: Requirements 4.2**
     - Use fast-check to generate JSON templates with placeholders matching CSV columns
     - Verify no unreplaced placeholder syntax remains in output
     - Run minimum 10 iterations
   
-  - [ ]* 5.3 Write property test for row count preservation
+  - [x] 5.3 Write property test for row count preservation
+
+
+
+
+
+
+
+
     - **Property 5: Row count preservation**
     - **Validates: Requirements 4.1, 4.5**
     - Use fast-check to generate CSV with N rows
     - Verify merge produces exactly N JSON objects
     - Run minimum 10 iterations
 
-- [ ] 6. Checkpoint - Ensure all tests pass
+- [x] 6. Checkpoint - Ensure all tests pass
+
+
+
+
+
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 7. Implement placeholder transformation tests
