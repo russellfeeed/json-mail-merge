@@ -32,7 +32,7 @@ The workflow is triggered on:
 
 - **Operating System**: Ubuntu Latest
 - **Node.js Version**: LTS (Long Term Support)
-- **Browsers**: Chromium, Firefox, WebKit
+- **Browsers**: Chromium only (optimized for CI speed)
 - **Timeout**: 60 minutes maximum execution time
 - **Parallelization**: Tests run in parallel for faster execution
 
@@ -85,6 +85,11 @@ Consider setting up branch protection rules in GitHub:
 
 ### Common Issues
 
+#### Tests Failing with ERR_CONNECTION_REFUSED
+- **Cause**: Port mismatch between Vite config, Playwright config, and test files
+- **Solution**: Ensure all configurations use consistent ports (5173 for dev, 4173 for preview)
+- **Fixed**: Updated Vite config to use port 5173, removed hardcoded URLs from tests
+
 #### Tests Failing in CI but Passing Locally
 - **Cause**: Environment differences or timing issues
 - **Solution**: Check browser versions, screen resolution, or add explicit waits
@@ -109,13 +114,17 @@ Consider setting up branch protection rules in GitHub:
 ## Configuration Customization
 
 ### Modifying Test Browsers
-Edit `playwright.config.ts` to change browser configurations:
+The configuration automatically uses different browsers for CI vs local development:
 
 ```typescript
-projects: [
+projects: process.env.CI ? [
+  // CI: Only Chromium for faster execution
+  { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+] : [
+  // Local: All browsers for comprehensive testing
   { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-  // Add or remove browsers as needed
+  { name: 'webkit', use: { ...devices['Desktop Safari'] } },
 ]
 ```
 

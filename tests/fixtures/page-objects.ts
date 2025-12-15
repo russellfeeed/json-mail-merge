@@ -68,9 +68,9 @@ export class MergeToolPage {
   readonly helpModalContent: Locator;
   readonly helpModalClose: Locator;
 
-  constructor(page: Page, baseUrl: string = 'http://localhost:8080') {
+  constructor(page: Page) {
     this.page = page;
-    this.baseUrl = baseUrl;
+    this.baseUrl = ''; // Will use baseURL from playwright config
 
     // JSON Editor
     this.jsonEditorSection = page.locator('[data-tour="json-editor"]');
@@ -132,7 +132,7 @@ export class MergeToolPage {
 
   // Navigation methods
   async goto(): Promise<void> {
-    await this.page.goto(this.baseUrl);
+    await this.page.goto('/');
     await this.page.waitForLoadState('networkidle');
   }
 

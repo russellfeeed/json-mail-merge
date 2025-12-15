@@ -124,7 +124,7 @@ tests/
 The project includes automated testing via GitHub Actions:
 
 - **Triggers**: Tests run on pushes to `main`/`develop` branches and all pull requests
-- **Browsers**: Tests execute on Chromium, Firefox, and WebKit
+- **Browsers**: Tests execute on Chromium only in CI (for speed), all browsers locally
 - **Artifacts**: Test reports, screenshots, and traces are automatically uploaded
 - **Timeout**: Tests have a 60-minute timeout to handle comprehensive test suites
 

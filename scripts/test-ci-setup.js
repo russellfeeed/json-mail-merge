@@ -33,7 +33,9 @@ console.log('🎭 Checking Playwright configuration...');
 try {
   const output = execSync('npx playwright test --list', { encoding: 'utf8' });
   const testCount = (output.match(/Total: (\d+) tests/)?.[1]) || '0';
-  console.log(`✅ Playwright configured correctly - Found ${testCount} tests`);
+  const isCI = process.env.CI;
+  const browserInfo = isCI ? ' (Chromium only for CI)' : ' (all browsers for local)';
+  console.log(`✅ Playwright configured correctly - Found ${testCount} tests${browserInfo}`);
 } catch (error) {
   console.error('❌ Playwright configuration error:', error.message);
   process.exit(1);

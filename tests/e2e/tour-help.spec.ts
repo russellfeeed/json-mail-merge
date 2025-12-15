@@ -10,7 +10,7 @@ test.describe('Tour and Help Features', () => {
   let mergeToolPage: MergeToolPage;
 
   test.beforeEach(async ({ page }) => {
-    mergeToolPage = new MergeToolPage(page, 'http://localhost:8080');
+    mergeToolPage = new MergeToolPage(page);
     await mergeToolPage.goto();
     
     // Clear localStorage to ensure fresh state for tour tests
