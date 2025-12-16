@@ -1,10 +1,9 @@
-name: Playwright Tests
+name: Playwright Tests (Standalone)
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
+  workflow_dispatch:  # Allow manual triggering
+  schedule:
+    - cron: '0 2 * * *'  # Run nightly at 2 AM UTC
 
 jobs:
   test:

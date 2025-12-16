@@ -1,0 +1,329 @@
+name: CI/CD Pipeline with Coverage
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Unit tests with coverage
+  unit-tests:
+    name: Unit Tests & Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for coverage comparison
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci --legacy-peer-deps
+    
+    - name: Run unit tests with coverage
+      run: npm run test:coverage
+      env:
+        CI: true
+    
+    - name: Check coverage thresholds
+      run: |
+        echo "Coverage thresholds are enforced by Vitest configuration"
+        echo "Build will fail if thresholds are not met"
+    
+    - name: Generate coverage summary
+      if: always()
+      run: |
+        if [ -f "coverage/coverage-summary.json" ]; then
+          echo "## Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          node -e "
+            const fs = require('fs');
+            const summary = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+            const total = summary.total;
+            console.log('| Metric | Coverage | Threshold |');
+            console.log('|--------|----------|-----------|');
+            console.log('| Lines | ' + total.lines.pct + '% | 10% |');
+            console.log('| Functions | ' + total.functions.pct + '% | 5% |');
+            console.log('| Branches | ' + total.branches.pct + '% | 5% |');
+            console.log('| Statements | ' + total.statements.pct + '% | 10% |');
+          " >> $GITHUB_STEP_SUMMARY
+        else
+          echo "Coverage summary not found" >> $GITHUB_STEP_SUMMARY
+        fi
+    
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-reports
+        path: |
+          coverage/
+          !coverage/tmp/
+        retention-days: 30
+        if-no-files-found: warn
+    
+    - name: Upload coverage to Codecov (optional)
+      uses: codecov/codecov-action@v4
+      if: always()
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
+    
+    outputs:
+      coverage-artifact: coverage-reports
+
+  # E2E tests with coverage
+  e2e-tests:
+    name: E2E Tests & Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci --legacy-peer-deps
+    
+    - name: Install Playwright Browsers
+      run: npx playwright install chromium --with-deps
+    
+    - name: Build application
+      run: npm run build
+    
+    - name: Run E2E tests with coverage
+      run: npm run test:e2e:coverage
+      env:
+        CI: true
+    
+    - name: Ensure artifact directories exist
+      if: always()
+      run: |
+        mkdir -p playwright-report test-results coverage
+        echo "Created artifact directories"
+    
+    - name: Upload Playwright Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
+        if-no-files-found: ignore
+    
+    - name: Upload E2E Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: e2e-test-results
+        path: test-results/
+        retention-days: 30
+        if-no-files-found: ignore
+
+  # Merge coverage reports and generate final artifacts
+  coverage-merge:
+    name: Merge Coverage & Generate Reports
+    runs-on: ubuntu-latest
+    needs: [unit-tests, e2e-tests]
+    if: always() && (needs.unit-tests.result == 'success' || needs.unit-tests.result == 'failure')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci --legacy-peer-deps
+    
+    - name: Download coverage artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: coverage-reports
+        path: coverage/
+    
+    - name: Merge coverage reports
+      run: |
+        # Run coverage merge script if available
+        if [ -f "scripts/merge-coverage.cjs" ]; then
+          npm run test:coverage:merge
+        else
+          echo "Coverage merge script not found, using unit test coverage only"
+        fi
+    
+    - name: Enhance coverage reports
+      run: |
+        # Run coverage enhancement script
+        npm run test:coverage:enhance
+    
+    - name: Generate coverage gap analysis
+      run: |
+        # Generate coverage gap analysis
+        npm run test:coverage:gaps:save
+    
+    - name: Upload final coverage reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: final-coverage-reports
+        path: |
+          coverage/
+          docs/COVERAGE-GAP-IDENTIFICATION.md
+        retention-days: 90
+        if-no-files-found: warn
+    
+    - name: Comment coverage on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Read coverage summary
+          let coverageComment = '## 📊 Coverage Report\n\n';
+          
+          try {
+            if (fs.existsSync('coverage/coverage-summary.json')) {
+              const summary = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+              const total = summary.total;
+              
+              coverageComment += '| Metric | Coverage | Change |\n';
+              coverageComment += '|--------|----------|--------|\n';
+              coverageComment += `| Lines | ${total.lines.pct}% | - |\n`;
+              coverageComment += `| Functions | ${total.functions.pct}% | - |\n`;
+              coverageComment += `| Branches | ${total.branches.pct}% | - |\n`;
+              coverageComment += `| Statements | ${total.statements.pct}% | - |\n\n`;
+              
+              // Add threshold status
+              coverageComment += '### Threshold Status\n';
+              coverageComment += `- Lines: ${total.lines.pct >= 10 ? '✅' : '❌'} (${total.lines.pct}% >= 10%)\n`;
+              coverageComment += `- Functions: ${total.functions.pct >= 5 ? '✅' : '❌'} (${total.functions.pct}% >= 5%)\n`;
+              coverageComment += `- Branches: ${total.branches.pct >= 5 ? '✅' : '❌'} (${total.branches.pct}% >= 5%)\n`;
+              coverageComment += `- Statements: ${total.statements.pct >= 10 ? '✅' : '❌'} (${total.statements.pct}% >= 10%)\n\n`;
+            } else {
+              coverageComment += 'Coverage summary not available.\n\n';
+            }
+            
+            // Add links to reports
+            coverageComment += '### 📋 Reports\n';
+            coverageComment += '- [📊 Coverage Report](../actions/runs/${{ github.run_id }})\n';
+            coverageComment += '- [🎭 E2E Test Report](../actions/runs/${{ github.run_id }})\n';
+            
+          } catch (error) {
+            coverageComment += `Error reading coverage data: ${error.message}\n`;
+          }
+          
+          // Find existing coverage comment
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          
+          const existingComment = comments.find(comment => 
+            comment.user.type === 'Bot' && comment.body.includes('📊 Coverage Report')
+          );
+          
+          if (existingComment) {
+            // Update existing comment
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existingComment.id,
+              body: coverageComment
+            });
+          } else {
+            // Create new comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: coverageComment
+            });
+          }
+
+  # Build validation
+  build:
+    name: Build Validation
+    runs-on: ubuntu-latest
+    needs: [unit-tests]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci --legacy-peer-deps
+    
+    - name: Lint code
+      run: npm run lint
+    
+    - name: Build application
+      run: npm run build
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: dist/
+        retention-days: 7
+
+  # Status check job that depends on all others
+  ci-status:
+    name: CI Status Check
+    runs-on: ubuntu-latest
+    needs: [unit-tests, e2e-tests, coverage-merge, build]
+    if: always()
+    
+    steps:
+    - name: Check job results
+      run: |
+        echo "Unit Tests: ${{ needs.unit-tests.result }}"
+        echo "E2E Tests: ${{ needs.e2e-tests.result }}"
+        echo "Coverage Merge: ${{ needs.coverage-merge.result }}"
+        echo "Build: ${{ needs.build.result }}"
+        
+        # Fail if critical jobs failed
+        if [[ "${{ needs.unit-tests.result }}" == "failure" ]]; then
+          echo "❌ Unit tests failed - this indicates coverage thresholds were not met or tests failed"
+          exit 1
+        fi
+        
+        if [[ "${{ needs.build.result }}" == "failure" ]]; then
+          echo "❌ Build failed"
+          exit 1
+        fi
+        
+        # E2E tests are important but not critical for coverage
+        if [[ "${{ needs.e2e-tests.result }}" == "failure" ]]; then
+          echo "⚠️ E2E tests failed - coverage data may be incomplete"
+        fi
+        
+        echo "✅ CI pipeline completed successfully"

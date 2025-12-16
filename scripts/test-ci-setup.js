@@ -58,27 +58,72 @@ if (fs.existsSync(testResultsDir)) {
   console.log('⚠️  test-results/ directory not found (will be created during test run)');
 }
 
-// Step 5: Verify GitHub Actions workflow syntax
-console.log('🔧 Checking GitHub Actions workflow...');
-const workflowPath = path.join(projectRoot, '.github', 'workflows', 'playwright.yml');
-if (fs.existsSync(workflowPath)) {
-  console.log('✅ GitHub Actions workflow file exists');
+// Step 5: Test coverage collection
+console.log('📊 Testing coverage collection...');
+try {
+  execSync('npm run test:coverage', { stdio: 'inherit' });
+  console.log('✅ Coverage collection successful');
   
-  const workflowContent = fs.readFileSync(workflowPath, 'utf8');
-  if (workflowContent.includes('npm run test:e2e')) {
-    console.log('✅ Workflow includes test execution step');
+  // Check if coverage files were generated
+  const coverageDir = path.join(projectRoot, 'coverage');
+  if (fs.existsSync(coverageDir)) {
+    const files = fs.readdirSync(coverageDir);
+    const hasHtml = files.some(f => f === 'index.html');
+    const hasJson = files.some(f => f === 'coverage-final.json');
+    const hasLcov = files.some(f => f === 'lcov.info');
+    
+    console.log(`✅ Coverage reports generated: HTML=${hasHtml}, JSON=${hasJson}, LCOV=${hasLcov}`);
   }
-  if (workflowContent.includes('upload-artifact@v4')) {
-    console.log('✅ Workflow includes artifact upload steps');
+} catch (error) {
+  console.error('❌ Coverage collection failed:', error.message);
+  process.exit(1);
+}
+
+// Step 6: Verify GitHub Actions workflows
+console.log('🔧 Checking GitHub Actions workflows...');
+
+// Check main CI workflow
+const ciWorkflowPath = path.join(projectRoot, '.github', 'workflows', 'ci.yml');
+if (fs.existsSync(ciWorkflowPath)) {
+  console.log('✅ Main CI workflow file exists');
+  
+  const ciWorkflowContent = fs.readFileSync(ciWorkflowPath, 'utf8');
+  if (ciWorkflowContent.includes('npm run test:coverage')) {
+    console.log('✅ CI workflow includes coverage collection');
+  }
+  if (ciWorkflowContent.includes('coverage-reports')) {
+    console.log('✅ CI workflow includes coverage artifact upload');
+  }
+  if (ciWorkflowContent.includes('thresholds')) {
+    console.log('✅ CI workflow includes threshold enforcement');
   }
 } else {
-  console.error('❌ GitHub Actions workflow file not found');
+  console.error('❌ Main CI workflow file not found');
+  process.exit(1);
+}
+
+// Check Playwright workflow
+const playwrightWorkflowPath = path.join(projectRoot, '.github', 'workflows', 'playwright.yml');
+if (fs.existsSync(playwrightWorkflowPath)) {
+  console.log('✅ Playwright workflow file exists');
+  
+  const workflowContent = fs.readFileSync(playwrightWorkflowPath, 'utf8');
+  if (workflowContent.includes('npm run test:e2e')) {
+    console.log('✅ Playwright workflow includes test execution step');
+  }
+  if (workflowContent.includes('upload-artifact@v4')) {
+    console.log('✅ Playwright workflow includes artifact upload steps');
+  }
+} else {
+  console.error('❌ Playwright workflow file not found');
   process.exit(1);
 }
 
 console.log('\n🎉 CI/CD setup verification complete!');
 console.log('\n📋 Next steps:');
-console.log('1. Push changes to GitHub to trigger the workflow');
+console.log('1. Push changes to GitHub to trigger the CI workflow');
 console.log('2. Check the Actions tab in your GitHub repository');
-console.log('3. Download artifacts from successful test runs');
-console.log('4. Update the status badge URL with your repository details');
+console.log('3. Download coverage artifacts from successful test runs');
+console.log('4. Monitor coverage thresholds and build failures');
+console.log('5. Review coverage reports in pull requests');
+console.log('6. Set up Codecov token (optional) for enhanced reporting');
