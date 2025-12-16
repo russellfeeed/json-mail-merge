@@ -33,7 +33,7 @@ export default defineConfig({
         'cobertura'       // XML format for additional tool compatibility
       ],
       reportsDirectory: './coverage',
-      include: ['src/**/*.{ts,tsx}'],
+      include: ['src/**/*.{ts,tsx,js,jsx}'],
       exclude: [
         // Type definition files
         '**/*.d.ts',
@@ -55,6 +55,10 @@ export default defineConfig({
         'src/components/ui/**'
       ],
       all: true,
+      // Enable automatic inclusion of new files
+      allowExternal: false,
+      // Ensure all source files are included even if not imported by tests
+      includeSource: ['src/**/*.{ts,tsx,js,jsx}'],
       clean: true,
       // Enable source maps for accurate line mapping
       skipFull: false,

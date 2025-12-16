@@ -164,5 +164,49 @@ module.exports = {
       'src/components/**',
       'src/hooks/**'
     ]
+  },
+
+  // Dynamic code tracking settings
+  dynamicTracking: {
+    // Enable automatic inclusion of new source files
+    enabled: true,
+    
+    // File patterns to watch for changes
+    watchPatterns: ['src/**/*.{ts,tsx,js,jsx}'],
+    
+    // Patterns to exclude from dynamic tracking
+    excludePatterns: [
+      '**/*.d.ts',
+      '**/*.config.*',
+      '**/*.test.*',
+      '**/*.spec.*',
+      'src/vite-env.d.ts',
+      'src/main.tsx',
+      'src/components/ui/**'
+    ],
+    
+    // Coverage change detection settings
+    changeDetection: {
+      // Minimum percentage change to report
+      threshold: 0.01,
+      
+      // Track coverage history
+      trackHistory: true,
+      
+      // Maximum history entries to keep
+      maxHistoryEntries: 50
+    },
+    
+    // Automatic coverage collection settings
+    autoCollection: {
+      // Run coverage when new files are detected
+      onNewFiles: false,
+      
+      // Run coverage when files are modified
+      onModifiedFiles: false,
+      
+      // Run coverage on manual scan
+      onScan: true
+    }
   }
 };

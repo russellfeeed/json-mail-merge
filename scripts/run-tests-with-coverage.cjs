@@ -9,16 +9,19 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { CoverageMerger } = require('./merge-coverage.cjs');
+const { DynamicCodeTracker } = require('./dynamic-code-tracker.cjs');
 
 class TestRunner {
   constructor() {
     this.coverageDir = path.join(process.cwd(), 'coverage');
+    this.dynamicTracker = new DynamicCodeTracker();
     this.options = {
       runUnit: true,
       runE2E: true,
       merge: true,
       generateSeparate: false,
-      clean: true
+      clean: true,
+      trackChanges: true
     };
   }
 
@@ -49,6 +52,9 @@ class TestRunner {
         case '--no-clean':
           options.clean = false;
           break;
+        case '--no-track':
+          options.trackChanges = false;
+          break;
         case '--help':
           this.showHelp();
           process.exit(0);
@@ -74,6 +80,7 @@ Options:
   --no-merge      Don't merge coverage data from different test types
   --separate      Generate separate reports for each test type
   --no-clean      Don't clean coverage directory before running tests
+  --no-track      Don't run dynamic code tracking
   --help          Show this help message
 
 Examples:
@@ -237,6 +244,24 @@ Examples:
     
     console.log('🚀 Starting test execution with coverage...');
     console.log('Options:', options);
+
+    // Run dynamic code tracking before tests
+    if (options.trackChanges) {
+      console.log('\n=== Dynamic Code Tracking ===');
+      try {
+        const trackingResult = await this.dynamicTracker.scan({ 
+          runCoverage: false, 
+          generateReport: false 
+        });
+        console.log(`✅ Code tracking completed: ${trackingResult.filesScanned} files tracked`);
+        
+        if (trackingResult.changes.added.length > 0 || trackingResult.changes.deleted.length > 0) {
+          console.log(`📝 Detected ${trackingResult.changes.added.length} new files, ${trackingResult.changes.deleted.length} deleted files`);
+        }
+      } catch (error) {
+        console.warn('⚠️  Dynamic code tracking failed:', error.message);
+      }
+    }
 
     // Clean coverage directory if requested
     if (options.clean) {
