@@ -15,4 +15,11 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    sourcemap: true, // Enable source maps for coverage
+  },
+  // Enable source maps in development for coverage collection
+  css: {
+    devSourcemap: true,
+  },
 }));

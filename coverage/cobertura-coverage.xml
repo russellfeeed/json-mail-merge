@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage lines-valid="623" lines-covered="180" line-rate="0.2889" branches-valid="395" branches-covered="56" branch-rate="0.1417" timestamp="1765884779150" complexity="0" version="0.1">
+<coverage lines-valid="623" lines-covered="180" line-rate="0.2889" branches-valid="395" branches-covered="56" branch-rate="0.1417" timestamp="1765887792267" complexity="0" version="0.1">
   <sources>
     <source>C:/Users/russe/dev/json-mail-merge</source>
   </sources>

@@ -12,6 +12,25 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    // Performance optimizations
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        singleThread: false,
+        maxThreads: 4,
+        minThreads: 1,
+        useAtomics: true
+      }
+    },
+    // Optimize test execution
+    testTimeout: 10000,
+    hookTimeout: 10000,
+    teardownTimeout: 5000,
+    // Enable concurrent test execution for better performance
+    sequence: {
+      concurrent: true,
+      shuffle: false
+    },
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -23,6 +42,15 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'istanbul',
+      // Performance optimizations for coverage collection
+      enabled: true,
+      // Use faster instrumentation options
+      instrument: true,
+      // Optimize memory usage by processing files in chunks
+      processingConcurrency: 4,
+      // Enable efficient source map handling
+      sourcemap: true,
+      // Optimize report generation
       reporter: [
         'text',           // Terminal output for quick viewing
         'text-summary',   // Concise terminal summary

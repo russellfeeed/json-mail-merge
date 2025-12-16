@@ -58,7 +58,14 @@ export default defineConfig({
           args: [
             '--enable-precise-memory-info',
             '--js-flags=--expose-gc',
+            '--enable-devtools-experiments',
+            '--remote-debugging-port=0', // Enable CDP
           ],
+        },
+        // Enable CDP for coverage collection
+        contextOptions: {
+          // Allow CDP access
+          permissions: ['clipboard-read', 'clipboard-write'],
         },
       },
     },

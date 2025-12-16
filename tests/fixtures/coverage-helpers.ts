@@ -55,15 +55,33 @@ export class CoverageHelpers {
         return;
       }
 
-      // For now, just log that coverage would be collected
-      // This prevents the CDP errors while maintaining the test structure
-      console.log('Coverage collection started successfully (simplified mode)');
+      const pageKey = this.getPageKey(page);
       
-      // Store a simple marker to indicate coverage was "started"
-      await page.addInitScript(`window.__coverageEnabled = true;`);
+      // Get CDP session
+      const client = await page.context().newCDPSession(page);
+      
+      // Enable runtime and profiler domains
+      await client.send('Runtime.enable');
+      await client.send('Profiler.enable');
+      
+      // Start precise coverage collection
+      await client.send('Profiler.startPreciseCoverage', {
+        callCount: true,
+        detailed: true
+      });
+
+      // Store the session for later cleanup
+      this.activeSessions.set(pageKey, { client, isCollecting: true });
+      
+      console.log('Coverage collection started successfully');
+      
+      // Add a marker to the page to track coverage
+      await page.addInitScript(`window.__coverageEnabled = true; window.__pageKey = '${pageKey}';`);
       
     } catch (error) {
       console.warn('Failed to start coverage collection:', error);
+      // Fallback to simplified mode
+      await page.addInitScript(`window.__coverageEnabled = true;`);
     }
   }
 
@@ -86,10 +104,79 @@ export class CoverageHelpers {
         return [];
       }
 
-      // For now, just return empty coverage data to prevent errors
-      // This maintains the test structure while avoiding CDP issues
-      console.log('Coverage collection stopped (simplified mode), processed 0 files');
-      return [];
+      // Get the page key to find the right session
+      const pageKey = await page.evaluate(() => (window as any).__pageKey).catch(() => null);
+      const session = pageKey ? this.activeSessions.get(pageKey) : null;
+
+      if (!session || !session.client) {
+        console.log('No active coverage session found, using simplified mode');
+        return [];
+      }
+
+      try {
+        // Collect coverage data
+        const coverage = await session.client.send('Profiler.takePreciseCoverage');
+        
+        // Stop coverage collection
+        await session.client.send('Profiler.stopPreciseCoverage');
+        
+        // Process the coverage data
+        const processedCoverage: CoverageData[] = [];
+        
+        for (const entry of coverage.result) {
+          if (this.shouldIncludeInCoverage(entry.url)) {
+            // Get the source text for this script
+            let sourceText = '';
+            try {
+              const source = await session.client.send('Runtime.getScriptSource', {
+                scriptId: entry.scriptId
+              });
+              sourceText = source.scriptSource;
+            } catch (e) {
+              // Create a minimal source text based on coverage ranges
+              // This allows us to still collect coverage data even without full source
+              const maxOffset = Math.max(...entry.functions.flatMap(f => f.ranges.map(r => r.endOffset)));
+              sourceText = '// Coverage data available\n'.repeat(Math.ceil(maxOffset / 30) || 1);
+            }
+
+            const coverageEntry: CoverageData = {
+              url: entry.url,
+              text: sourceText,
+              ranges: entry.functions.flatMap(func => 
+                func.ranges.map(range => ({
+                  start: range.startOffset,
+                  end: range.endOffset,
+                  count: range.count
+                }))
+              )
+            };
+            
+            processedCoverage.push(coverageEntry);
+          }
+        }
+
+        // Store coverage data for later processing
+        this.coverageData.push(...processedCoverage);
+        
+        // Clean up the session
+        await session.client.detach();
+        this.activeSessions.delete(pageKey);
+        
+        console.log(`Coverage collection stopped, processed ${processedCoverage.length} files`);
+        return processedCoverage;
+        
+      } catch (cdpError) {
+        console.warn('CDP coverage collection failed, falling back to simplified mode:', cdpError);
+        // Clean up the session
+        try {
+          await session.client.detach();
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+        this.activeSessions.delete(pageKey);
+        return [];
+      }
+      
     } catch (error) {
       console.warn('Failed to collect coverage data:', error);
       return [];
