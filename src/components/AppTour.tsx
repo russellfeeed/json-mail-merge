@@ -52,6 +52,25 @@ export const AppTour = forwardRef<AppTourRef>((_, ref) => {
   }));
 
   useEffect(() => {
+    // Don't start tour in test environments
+    const isTestEnvironment = 
+      typeof window !== 'undefined' && (
+        window.location.hostname === 'localhost' && 
+        (window.navigator.webdriver || 
+         window.navigator.userAgent.includes('HeadlessChrome') ||
+         window.navigator.userAgent.includes('Playwright') ||
+         // Check for Playwright-specific properties
+         'playwright' in window ||
+         // Check for test-specific query parameters
+         window.location.search.includes('test=true') ||
+         // Check for test environment variables that might be exposed
+         process.env.NODE_ENV === 'test')
+      );
+
+    if (isTestEnvironment) {
+      return;
+    }
+
     const hasCompletedTour = localStorage.getItem(TOUR_STORAGE_KEY);
     if (!hasCompletedTour) {
       // Small delay to ensure DOM is ready

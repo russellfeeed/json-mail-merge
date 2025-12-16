@@ -78,7 +78,7 @@ export class MergeToolPage {
     this.jsonTextarea = this.jsonEditorSection.locator('textarea');
     this.jsonUploadInput = page.locator('#json-upload');
     this.jsonDropZone = this.jsonEditorSection.locator('.drop-zone');
-    this.jsonValidationStatus = this.jsonEditorSection.locator('span:has-text("Valid JSON"), span:has-text("Invalid JSON")');
+    this.jsonValidationStatus = this.jsonEditorSection.locator('span:has-text("Valid JSON"), span:has-text("Invalid JSON")').first();
     this.jsonDownloadButton = this.jsonEditorSection.locator('button:has(svg)').filter({ hasText: '' }).first();
     this.jsonTemplateSelect = this.jsonEditorSection.locator('button[role="combobox"]');
     this.placeholderHelpButton = this.jsonEditorSection.locator('button:has(svg)').first();
@@ -133,7 +133,7 @@ export class MergeToolPage {
 
   // Navigation methods
   async goto(): Promise<void> {
-    await this.page.goto('/');
+    await this.page.goto('/?test=true');
     await this.page.waitForLoadState('networkidle');
   }
 
@@ -418,63 +418,16 @@ export class MergeToolPage {
 
   async skipTour(): Promise<void> {
     try {
-      // Immediately disable tour via localStorage to prevent it from showing
+      // Set localStorage to mark tour as completed (fallback safety)
       await this.page.evaluate(() => {
-        localStorage.setItem('tourCompleted', 'true');
-        localStorage.setItem('tourSkipped', 'true');
+        localStorage.setItem('json-merge-tour-completed', 'true');
       });
 
-      // Wait a bit for any existing tour to potentially appear
-      await this.page.waitForTimeout(300);
+      // Brief wait to ensure any tour elements are handled
+      await this.page.waitForTimeout(100);
       
-      // Aggressively remove any tour elements that might exist
-      await this.page.evaluate(() => {
-        // Remove tour portal
-        const portal = document.getElementById('react-joyride-portal');
-        if (portal) {
-          portal.remove();
-        }
-        
-        // Remove any spotlight elements
-        const spotlights = document.querySelectorAll('[data-test-id="spotlight"]');
-        spotlights.forEach(el => el.remove());
-        
-        // Remove any joyride elements
-        const joyrideElements = document.querySelectorAll('[class*="joyride"], [class*="react-joyride"]');
-        joyrideElements.forEach(el => el.remove());
-        
-        // Remove any overlay elements
-        const overlays = document.querySelectorAll('[class*="overlay"], [class*="backdrop"]');
-        overlays.forEach(el => {
-          if (el.getAttribute('class')?.includes('joyride') || 
-              el.getAttribute('class')?.includes('tour') ||
-              el.getAttribute('data-test-id') === 'spotlight') {
-            el.remove();
-          }
-        });
-      });
-
-      // Try to click skip/close buttons if they exist
-      const skipButton = this.page.locator('button:has-text("Skip tour"), button:has-text("Skip"), button:has-text("Close")');
-      const closeButton = this.page.locator('button[aria-label="Close"]');
-      
-      if (await skipButton.isVisible({ timeout: 500 }).catch(() => false)) {
-        await skipButton.click();
-      } else if (await closeButton.isVisible({ timeout: 500 }).catch(() => false)) {
-        await closeButton.click();
-      }
-      
-      // Press Escape multiple times to ensure any modal/tour is dismissed
+      // Press Escape to dismiss any remaining tour elements (fallback)
       await this.page.keyboard.press('Escape');
-      await this.page.keyboard.press('Escape');
-      await this.page.keyboard.press('Escape');
-      
-      // Final wait to ensure everything is settled
-      await this.page.waitForTimeout(200);
-      
-      // Wait a bit to ensure DOM changes take effect
-      await this.page.waitForTimeout(300);
-      
     } catch (error) {
       // If tour handling fails, continue anyway - don't let it block tests
       console.log('Tour dismissal failed, continuing:', error.message);
