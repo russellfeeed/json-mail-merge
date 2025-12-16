@@ -75,28 +75,31 @@ npm run dev
 
 ### Testing
 
-This project uses Playwright for end-to-end testing to ensure all user workflows function correctly across different browsers.
+This project uses comprehensive testing with both unit tests and end-to-end tests, along with detailed code coverage reporting.
 
 #### Running Tests Locally
 
 ```sh
-# Run all E2E tests
-npm run test:e2e
+# Unit Tests
+npm run test:unit                 # Run unit tests once
+npm run test:unit:watch          # Run unit tests in watch mode
+npm run test:unit:ui             # Run unit tests with UI
 
-# Run tests with UI mode (interactive)
-npm run test:e2e:ui
+# Coverage
+npm run test:coverage            # Run unit tests with coverage
+npm run test:coverage:all        # Run all tests (unit + E2E) with coverage
+npm run test:coverage:gaps       # Analyze coverage gaps
+npm run test:coverage:track      # Track new files for coverage
 
-# Run tests in headed mode (see browser)
-npm run test:e2e:headed
+# E2E Tests
+npm run test:e2e                 # Run all E2E tests
+npm run test:e2e:ui              # Run tests with UI mode (interactive)
+npm run test:e2e:headed          # Run tests in headed mode (see browser)
+npm run test:e2e:debug           # Run tests in debug mode
+npm run test:e2e:report          # View test report
 
-# Run tests in debug mode
-npm run test:e2e:debug
-
-# View test report
-npm run test:e2e:report
-
-# Verify CI/CD setup
-npm run test:ci-setup
+# CI/CD
+npm run test:ci-setup            # Verify CI/CD setup
 ```
 
 #### Test Structure
@@ -139,6 +142,29 @@ When tests run in CI or locally, detailed HTML reports are generated including:
 Access reports by:
 1. **Locally**: Run `npm run test:e2e:report` after tests complete
 2. **CI/CD**: Download artifacts from the GitHub Actions run page
+
+#### Code Coverage
+
+The project maintains comprehensive code coverage with automated reporting and threshold enforcement:
+
+- **Current Coverage**: Lines: 10.95% | Functions: 5.16% | Branches: 4.41% | Statements: 9.82%
+- **Coverage Reports**: Interactive HTML reports with gap analysis and visual indicators
+- **Threshold Enforcement**: Configurable coverage thresholds that fail builds when not met
+- **Multi-format Output**: HTML, JSON, LCOV, and Cobertura formats for different tools
+
+**Coverage Commands**:
+```sh
+# View coverage reports
+open coverage/index.html         # Interactive HTML report
+npm run test:coverage:gaps       # Detailed gap analysis
+npm run test:coverage:track:status  # File tracking status
+```
+
+**Coverage Documentation**: See [docs/README-COVERAGE.md](docs/README-COVERAGE.md) for comprehensive coverage documentation including:
+- Configuration guide and best practices
+- Threshold examples for different project phases
+- Troubleshooting common coverage issues
+- Workflow integration with CI/CD
 
 For detailed CI/CD setup information, see [CI/CD Setup Documentation](docs/CI-CD-SETUP.md).
 
