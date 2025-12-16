@@ -45,8 +45,8 @@ export default defineConfig({
   },
 
   /* Configure projects for major browsers */
-  projects: process.env.CI ? [
-    // CI: Only run Chromium for faster execution
+  projects: [
+    // Only run Chromium for all environments
     {
       name: 'chromium',
       use: { 
@@ -59,29 +59,6 @@ export default defineConfig({
           ],
         },
       },
-    },
-  ] : [
-    // Local: Run all browsers for comprehensive testing
-    {
-      name: 'chromium',
-      use: { 
-        ...devices['Desktop Chrome'],
-        // Enable coverage collection in Chromium
-        launchOptions: {
-          args: [
-            '--enable-precise-memory-info',
-            '--js-flags=--expose-gc',
-          ],
-        },
-      },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
     },
   ],
 

@@ -121,10 +121,8 @@ projects: process.env.CI ? [
   // CI: Only Chromium for faster execution
   { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
 ] : [
-  // Local: All browsers for comprehensive testing
+  // Only Chromium for all environments
   { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-  { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-  { name: 'webkit', use: { ...devices['Desktop Safari'] } },
 ]
 ```
 

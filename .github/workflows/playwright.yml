@@ -22,7 +22,7 @@ jobs:
       run: npm ci --legacy-peer-deps
     
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+      run: npx playwright install chromium --with-deps
     
     - name: Build application
       run: npm run build

@@ -256,9 +256,7 @@ Tests are organized by feature area:
 ### Browser Coverage
 
 Tests will run on:
-- **Chromium**: Primary browser for development
-- **Firefox**: Cross-browser compatibility
-- **WebKit**: Safari compatibility (optional, can be enabled for full coverage)
+- **Chromium**: Primary and only browser for development and testing
 
 ### Test Execution Modes
 
@@ -311,14 +309,6 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
     },
   ],
 

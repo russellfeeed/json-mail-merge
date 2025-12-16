@@ -557,6 +557,6 @@ The architecture supports extension through:
 
 ### Browser Support
 
-- **Modern Browsers**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- **Primary Browser**: Chrome 90+ (Chromium-based browsers)
 - **Required APIs**: File API, Clipboard API, Crypto API
 - **Fallbacks**: Graceful degradation for unsupported features

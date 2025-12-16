@@ -6,7 +6,7 @@ This document specifies the requirements for implementing end-to-end testing usi
 
 ## Glossary
 
-- **Playwright**: A modern end-to-end testing framework that enables reliable testing across Chromium, Firefox, and WebKit browsers
+- **Playwright**: A modern end-to-end testing framework that enables reliable testing in Chromium browser
 - **Test Application**: The JSON-CSV merge tool web application being tested
 - **Test Suite**: A collection of related test cases organized by feature or workflow
 - **Test Fixture**: Reusable setup code and test data used across multiple tests
@@ -24,7 +24,7 @@ This document specifies the requirements for implementing end-to-end testing usi
 #### Acceptance Criteria
 
 1. WHEN the project is configured THEN the Test Application SHALL include Playwright as a development dependency with TypeScript support
-2. WHEN tests are executed THEN the Test Runner SHALL support running tests in Chromium, Firefox, and WebKit browsers
+2. WHEN tests are executed THEN the Test Runner SHALL support running tests in Chromium browser
 3. WHEN the test configuration is created THEN the Test Application SHALL define a base URL pointing to the local development server
 4. WHEN tests run THEN the Test Runner SHALL generate HTML reports with test results, screenshots, and traces
 5. WHERE CI/CD integration is needed, the Test Application SHALL provide configuration for automated test execution
