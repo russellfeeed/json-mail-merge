@@ -15,6 +15,8 @@ export default defineConfig({
   testDir: './tests/e2e',
   /* Output directory for test results */
   outputDir: 'test-results/',
+  /* Global teardown to cleanup coverage sessions */
+  globalTeardown: './tests/fixtures/global-teardown.ts',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */

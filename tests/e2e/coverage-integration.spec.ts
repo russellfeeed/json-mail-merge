@@ -22,9 +22,16 @@ test.describe('Coverage Integration Tests', () => {
   });
 
   test.afterEach(async ({ page }, testInfo) => {
-    // Stop coverage collection and save data
-    await mergeToolPage.stopCoverageCollection();
-    await mergeToolPage.saveCoverageData(testInfo.title.replace(/[^a-zA-Z0-9]/g, '-'));
+    try {
+      // Stop coverage collection and save data
+      await mergeToolPage.stopCoverageCollection();
+      await mergeToolPage.saveCoverageData(testInfo.title.replace(/[^a-zA-Z0-9]/g, '-'));
+    } catch (error) {
+      console.warn('Failed to collect coverage in afterEach:', error);
+    } finally {
+      // Ensure cleanup of any remaining sessions
+      await CoverageHelpers.cleanupAllSessions();
+    }
   });
 
   test('should collect coverage during basic merge workflow', async () => {

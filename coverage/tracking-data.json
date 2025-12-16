@@ -1,0 +1,275 @@
+{
+  "lastScan": "2025-12-16T09:03:27.570Z",
+  "files": {
+    "src\\App.tsx": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\App.tsx",
+      "size": 898,
+      "mtime": "2025-12-02T12:06:19.955Z",
+      "exists": true
+    },
+    "src\\pages\\NotFound.tsx": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\pages\\NotFound.tsx",
+      "size": 751,
+      "mtime": "2025-12-02T12:06:19.974Z",
+      "exists": true
+    },
+    "src\\pages\\Index.tsx": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\pages\\Index.tsx",
+      "size": 19242,
+      "mtime": "2025-12-09T15:00:39.184Z",
+      "exists": true
+    },
+    "src\\lib\\utils.ts": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\lib\\utils.ts",
+      "size": 175,
+      "mtime": "2025-12-02T12:06:19.973Z",
+      "exists": true
+    },
+    "src\\lib\\systemPlaceholders.ts": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\lib\\systemPlaceholders.ts",
+      "size": 3614,
+      "mtime": "2025-12-09T15:00:39.184Z",
+      "exists": true
+    },
+    "src\\lib\\placeholderSuggestions.ts": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\lib\\placeholderSuggestions.ts",
+      "size": 2480,
+      "mtime": "2025-12-10T21:22:12.464Z",
+      "exists": true
+    },
+    "src\\lib\\placeholderMethods.ts": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\lib\\placeholderMethods.ts",
+      "size": 2948,
+      "mtime": "2025-12-09T15:00:39.183Z",
+      "exists": true
+    },
+    "src\\lib\\jsonMerge.ts": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\lib\\jsonMerge.ts",
+      "size": 5488,
+      "mtime": "2025-12-10T21:16:55.796Z",
+      "exists": true
+    },
+    "src\\lib\\jsonArrayDetection.ts": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\lib\\jsonArrayDetection.ts",
+      "size": 1348,
+      "mtime": "2025-12-09T15:00:39.182Z",
+      "exists": true
+    },
+    "src\\lib\\arrayMerge.ts": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\lib\\arrayMerge.ts",
+      "size": 2415,
+      "mtime": "2025-12-09T15:00:39.181Z",
+      "exists": true
+    },
+    "src\\hooks\\use-toast.ts": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\hooks\\use-toast.ts",
+      "size": 4121,
+      "mtime": "2025-12-02T12:06:19.971Z",
+      "exists": true
+    },
+    "src\\hooks\\use-mobile.tsx": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\hooks\\use-mobile.tsx",
+      "size": 595,
+      "mtime": "2025-12-02T12:06:19.971Z",
+      "exists": true
+    },
+    "src\\components\\UserInputPrompt.tsx": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\components\\UserInputPrompt.tsx",
+      "size": 3057,
+      "mtime": "2025-12-09T15:00:39.180Z",
+      "exists": true
+    },
+    "src\\components\\RowInputPrompt.tsx": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\components\\RowInputPrompt.tsx",
+      "size": 4617,
+      "mtime": "2025-12-09T15:00:39.179Z",
+      "exists": true
+    },
+    "src\\components\\PlaceholderHelpModal.tsx": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\components\\PlaceholderHelpModal.tsx",
+      "size": 8480,
+      "mtime": "2025-12-09T15:00:39.178Z",
+      "exists": true
+    },
+    "src\\components\\PlaceholderAutocomplete.tsx": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\components\\PlaceholderAutocomplete.tsx",
+      "size": 4724,
+      "mtime": "2025-12-10T21:22:12.464Z",
+      "exists": true
+    },
+    "src\\components\\MergeResults.tsx": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\components\\MergeResults.tsx",
+      "size": 4856,
+      "mtime": "2025-12-02T12:06:19.957Z",
+      "exists": true
+    },
+    "src\\components\\JsonEditor.tsx": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\components\\JsonEditor.tsx",
+      "size": 19996,
+      "mtime": "2025-12-09T15:00:39.176Z",
+      "exists": true
+    },
+    "src\\components\\CsvEditor.tsx": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\components\\CsvEditor.tsx",
+      "size": 6583,
+      "mtime": "2025-12-02T12:06:19.956Z",
+      "exists": true
+    },
+    "src\\components\\AppTour.tsx": {
+      "path": "C:\\Users\\russe\\dev\\json-mail-merge\\src\\components\\AppTour.tsx",
+      "size": 3229,
+      "mtime": "2025-12-09T15:00:39.175Z",
+      "exists": true
+    }
+  },
+  "coverageHistory": [
+    {
+      "timestamp": "2025-12-16T09:03:30.900Z",
+      "coverage": {
+        "lines": {
+          "total": 621,
+          "covered": 68,
+          "skipped": 0,
+          "pct": 10.95
+        },
+        "statements": {
+          "total": 702,
+          "covered": 69,
+          "skipped": 0,
+          "pct": 9.82
+        },
+        "functions": {
+          "total": 213,
+          "covered": 11,
+          "skipped": 0,
+          "pct": 5.16
+        },
+        "branches": {
+          "total": 385,
+          "covered": 17,
+          "skipped": 0,
+          "pct": 4.41
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    }
+  ],
+  "changeLog": [
+    {
+      "type": "scan",
+      "changes": {
+        "added": [
+          {
+            "path": "src\\App.tsx",
+            "size": 898,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\pages\\NotFound.tsx",
+            "size": 751,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\pages\\Index.tsx",
+            "size": 19242,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\lib\\utils.ts",
+            "size": 175,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\lib\\systemPlaceholders.ts",
+            "size": 3614,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\lib\\placeholderSuggestions.ts",
+            "size": 2480,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\lib\\placeholderMethods.ts",
+            "size": 2948,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\lib\\jsonMerge.ts",
+            "size": 5488,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\lib\\jsonArrayDetection.ts",
+            "size": 1348,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\lib\\arrayMerge.ts",
+            "size": 2415,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\hooks\\use-toast.ts",
+            "size": 4121,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\hooks\\use-mobile.tsx",
+            "size": 595,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\components\\UserInputPrompt.tsx",
+            "size": 3057,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\components\\RowInputPrompt.tsx",
+            "size": 4617,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\components\\PlaceholderHelpModal.tsx",
+            "size": 8480,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\components\\PlaceholderAutocomplete.tsx",
+            "size": 4724,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\components\\MergeResults.tsx",
+            "size": 4856,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\components\\JsonEditor.tsx",
+            "size": 19996,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\components\\CsvEditor.tsx",
+            "size": 6583,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          },
+          {
+            "path": "src\\components\\AppTour.tsx",
+            "size": 3229,
+            "timestamp": "2025-12-16T09:03:27.568Z"
+          }
+        ],
+        "modified": [],
+        "deleted": [],
+        "renamed": []
+      },
+      "timestamp": "2025-12-16T09:03:27.570Z"
+    }
+  ]
+}
