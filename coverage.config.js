@@ -78,13 +78,26 @@ module.exports = {
     options: {
       html: {
         skipEmpty: false,
-        skipFull: false
+        skipFull: false,
+        // Enhanced options for better uncovered code highlighting
+        verbose: true,
+        linkMapper: null,
+        // Custom watermarks for visual indicators
+        watermarks: {
+          statements: [50, 80],
+          functions: [50, 80],
+          branches: [50, 80],
+          lines: [50, 80]
+        }
       },
       json: {
         file: 'coverage-final.json'
       },
       text: {
-        maxCols: 120
+        maxCols: 120,
+        // Show detailed uncovered line information
+        skipEmpty: false,
+        skipFull: false
       },
       lcov: {
         file: 'lcov.info'

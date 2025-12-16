@@ -141,8 +141,13 @@
   - Test unified report generation
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 8. Implement coverage gap identification
-- [ ] 8.1 Configure uncovered code highlighting
+- [-] 8. Implement coverage gap identification
+
+
+- [x] 8.1 Configure uncovered code highlighting
+
+
+
   - Set up visual indicators for uncovered lines in HTML reports
   - Configure branch coverage visualization for conditional statements
   - Set up function coverage reporting for uncalled functions

@@ -62,6 +62,13 @@ export default defineConfig({
       reportOnFailure: true,
       // Fail the build when thresholds are not met
       thresholdAutoUpdate: false,
+      // Enhanced uncovered code highlighting options
+      watermarks: {
+        statements: [50, 80],
+        functions: [50, 80],
+        branches: [50, 80],
+        lines: [50, 80]
+      },
       thresholds: {
         // Global coverage thresholds - set to current baseline with room for improvement
         global: {
