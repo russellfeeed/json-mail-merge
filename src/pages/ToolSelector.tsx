@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Wand2, Wrench, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import synertecLogo from '@/assets/synertec-logo.webp';
 
 const tools = [
   {
@@ -22,9 +23,7 @@ const ToolSelector = () => {
       <header className="synertec-gradient text-primary-foreground">
         <div className="container mx-auto px-4 py-12">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-primary-foreground/10 backdrop-blur-sm">
-              <Wrench className="h-10 w-10" />
-            </div>
+            <img src={synertecLogo} alt="Synertec" className="h-12" />
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Synertec Tools</h1>
               <p className="text-primary-foreground/80 mt-1">

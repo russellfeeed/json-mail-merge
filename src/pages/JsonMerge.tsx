@@ -15,6 +15,7 @@ import { parseCSV, extractPlaceholders, extractFullPlaceholders, mergePlaceholde
 import { resolveSystemPlaceholders, getSystemPlaceholderNames, getUserInputPlaceholderNames, getRowInputPlaceholderNames, userInputPlaceholders, rowInputPlaceholders } from '@/lib/systemPlaceholders';
 import { findArraysInJson, mergeAsArray } from '@/lib/arrayMerge';
 import { findRowInputsOutsideArrays } from '@/lib/jsonArrayDetection';
+import synertecLogo from '@/assets/synertec-logo.webp';
 
 const sampleJsonTemplate = `{
   "id": "{{uuid}}",
@@ -175,9 +176,7 @@ const Index = () => {
               <Link to="/" className="p-2 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors" title="Back to Tools">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
-              <div className="p-2 rounded-lg bg-primary-foreground/10">
-                <Wand2 className="h-6 w-6" />
-              </div>
+              <img src={synertecLogo} alt="Synertec" className="h-8" />
               <div>
                 <h1 className="text-xl font-bold">JSON Data Merge</h1>
                 <p className="text-xs text-primary-foreground/80">
