@@ -14,16 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['museo-sans', 'sans-serif'],
-        display: ['museo-sans', 'sans-serif'],
+        sans: ['Nunito', 'sans-serif'],
+        display: ['Nunito', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
-      },
-      fontWeight: {
-        light: '300',
-        normal: '300',
-        medium: '500',
-        semibold: '700',
-        bold: '700',
       },
       colors: {
         border: "hsl(var(--border))",
