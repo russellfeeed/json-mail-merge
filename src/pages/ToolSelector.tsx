@@ -26,7 +26,7 @@ const ToolSelector = () => {
               <Wrench className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Developer Toolkit</h1>
+              <h1 className="text-2xl font-bold">Synertec Tools</h1>
               <p className="text-sm text-muted-foreground">
                 A collection of useful development tools
               </p>
