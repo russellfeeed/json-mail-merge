@@ -20,20 +20,18 @@ const ToolSelector = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Header */}
-      <header className="synertec-gradient text-primary-foreground">
-        <div className="container mx-auto px-4 py-12">
+      <header className="bg-background border-b border-border shadow-sm">
+        <div className="container mx-auto px-4 py-8">
           <div className="flex items-center gap-4">
             <img src={synertecLogo} alt="Synertec" className="h-12" />
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Synertec Tools</h1>
-              <p className="text-primary-foreground/80 mt-1">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">Synertec Tools</h1>
+              <p className="text-muted-foreground mt-1">
                 Productivity tools for data transformation and development workflows
               </p>
             </div>
           </div>
         </div>
-        {/* Decorative curved bottom */}
-        <div className="h-8 bg-background rounded-t-[2rem]" />
       </header>
 
       {/* Main Content */}
@@ -49,18 +47,19 @@ const ToolSelector = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-6">
             {tools.map((tool) => (
               <Link key={tool.id} to={tool.path} className="group">
-                <Card className="h-full card-hover border-2 border-border hover:border-primary/50 bg-card">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="p-3 rounded-xl bg-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <Card className="h-full card-hover border-l-4 border-l-primary border-border hover:border-primary/50 bg-card overflow-hidden">
+                  <CardHeader className="relative">
+                    <div className="absolute inset-0 synertec-gradient-light opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="relative flex items-start justify-between">
+                      <div className="p-3 rounded-xl synertec-gradient text-primary-foreground shadow-md">
                         <tool.icon className="h-6 w-6" />
                       </div>
                       <ArrowRight className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                     </div>
-                    <CardTitle className="mt-4 text-foreground">{tool.name}</CardTitle>
-                    <CardDescription className="text-muted-foreground">{tool.description}</CardDescription>
+                    <CardTitle className="relative mt-4 text-foreground">{tool.name}</CardTitle>
+                    <CardDescription className="relative text-muted-foreground">{tool.description}</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="relative">
                     <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                       Open Tool
                     </Button>
