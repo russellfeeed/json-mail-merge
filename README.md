@@ -124,7 +124,8 @@ npm run test:coverage:all        # Run all tests (unit + E2E) with coverage
 npm run test:coverage:gaps       # Analyze coverage gaps
 npm run test:coverage:track      # Track new files for coverage
 
-# E2E Tests
+# E2E Tests (first-time setup: install Playwright browsers)
+npx playwright install           # One-time: download browser binaries
 npm run test:e2e                 # Run all E2E tests
 npm run test:e2e:ui              # Run tests with UI mode (interactive)
 npm run test:e2e:headed          # Run tests in headed mode (see browser)
