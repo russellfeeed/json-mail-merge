@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { Wand2, ArrowRight, Sparkles, List, Trash2, AlertCircle, HelpCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Wand2, ArrowRight, ArrowLeft, Sparkles, List, Trash2, AlertCircle, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
@@ -171,6 +172,9 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              <Link to="/" className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors" title="Back to Tools">
+                <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+              </Link>
               <div className="p-2 rounded-lg bg-primary/10">
                 <Wand2 className="h-6 w-6 text-primary" />
               </div>
