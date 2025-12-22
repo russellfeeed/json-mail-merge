@@ -48,30 +48,63 @@ Generate a single JSON file containing an array with one item per CSV row, inste
 
 ---
 
-## Development
+## Prerequisites
 
-### Tech Stack
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Before you begin, ensure you have the following installed:
 
-### Getting Started
+- **Node.js** - Version 18.x or higher (LTS recommended)
+- **npm** - Version 9.x or higher (comes with Node.js)
+
+You can verify your versions by running:
+```sh
+node --version
+npm --version
+```
+
+---
+
+## Getting Started
+
+### 1. Clone the Repository
 
 ```sh
-# Clone the repository
 git clone <YOUR_GIT_URL>
-
-# Navigate to the project directory
 cd <YOUR_PROJECT_NAME>
+```
 
-# Install dependencies
-npm i
+### 2. Install Dependencies
 
-# Start the development server
+```sh
+npm install
+```
+
+This will install all required dependencies including Vite, React, TypeScript, and testing tools.
+
+### 3. Start Development Server
+
+```sh
 npm run dev
 ```
+
+The application will be available at `http://localhost:8080`.
+
+### 4. Build for Production
+
+```sh
+npm run build
+```
+
+This creates an optimized production build in the `dist/` folder.
+
+---
+
+## Tech Stack
+
+- **Vite** - Fast build tool and development server
+- **TypeScript** - Type-safe JavaScript
+- **React** - UI component library
+- **shadcn/ui** - Accessible component primitives
+- **Tailwind CSS** - Utility-first CSS framework
 
 ### Testing
 
