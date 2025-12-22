@@ -15,16 +15,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 20%;
 
-    --primary: 318 72% 45%;
+    --primary: 330 95% 28%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 96%;
-    --secondary-foreground: 220 20% 20%;
+    --secondary: 194 32% 57%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 220 15% 96%;
     --muted-foreground: 220 10% 45%;
 
-    --accent: 318 72% 45%;
+    --accent: 194 32% 57%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 55%;
@@ -32,7 +32,7 @@
 
     --border: 220 15% 90%;
     --input: 220 15% 94%;
-    --ring: 318 72% 45%;
+    --ring: 330 95% 28%;
 
     --radius: 0.5rem;
 
@@ -42,17 +42,18 @@
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 20% 20%;
-    --sidebar-primary: 318 72% 45%;
+    --sidebar-primary: 330 95% 28%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 96%;
-    --sidebar-accent-foreground: 220 20% 20%;
+    --sidebar-accent: 194 32% 57%;
+    --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 220 15% 90%;
-    --sidebar-ring: 318 72% 45%;
+    --sidebar-ring: 330 95% 28%;
 
     /* Synertec brand colors */
-    --synertec-purple: 318 72% 45%;
-    --synertec-purple-light: 318 60% 95%;
-    --synertec-purple-dark: 318 72% 35%;
+    --synertec-magenta: 330 95% 28%;
+    --synertec-magenta-light: 330 60% 95%;
+    --synertec-teal: 194 32% 57%;
+    --synertec-teal-light: 194 32% 90%;
     --synertec-gray: 220 15% 96%;
     --synertec-gray-dark: 220 10% 40%;
   }
@@ -67,16 +68,16 @@
     --popover: 220 18% 13%;
     --popover-foreground: 210 20% 95%;
 
-    --primary: 318 72% 55%;
+    --primary: 330 95% 38%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 20%;
-    --secondary-foreground: 210 20% 90%;
+    --secondary: 194 32% 47%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 220 15% 18%;
     --muted-foreground: 215 15% 55%;
 
-    --accent: 318 72% 55%;
+    --accent: 194 32% 47%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 55%;
@@ -84,16 +85,16 @@
 
     --border: 220 15% 22%;
     --input: 220 15% 18%;
-    --ring: 318 72% 55%;
+    --ring: 330 95% 38%;
 
     --sidebar-background: 220 18% 13%;
     --sidebar-foreground: 210 20% 95%;
-    --sidebar-primary: 318 72% 55%;
+    --sidebar-primary: 330 95% 38%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 20%;
-    --sidebar-accent-foreground: 210 20% 90%;
+    --sidebar-accent: 194 32% 47%;
+    --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 220 15% 22%;
-    --sidebar-ring: 318 72% 55%;
+    --sidebar-ring: 330 95% 38%;
   }
 }
 
@@ -161,11 +162,11 @@
 
   /* Synertec gradient backgrounds */
   .synertec-gradient {
-    background: linear-gradient(135deg, hsl(var(--synertec-purple)) 0%, hsl(318 72% 55%) 100%);
+    background: linear-gradient(135deg, hsl(var(--synertec-magenta)) 0%, hsl(var(--synertec-teal)) 100%);
   }
 
   .synertec-gradient-light {
-    background: linear-gradient(135deg, hsl(var(--synertec-purple-light)) 0%, hsl(0 0% 100%) 100%);
+    background: linear-gradient(135deg, hsl(var(--synertec-magenta-light)) 0%, hsl(var(--synertec-teal-light)) 100%);
   }
 
   /* Card hover effect */
@@ -175,7 +176,7 @@
 
   .card-hover:hover {
     @apply shadow-lg -translate-y-1;
-    box-shadow: 0 10px 40px -10px hsl(var(--synertec-purple) / 0.2);
+    box-shadow: 0 10px 40px -10px hsl(var(--synertec-magenta) / 0.3);
   }
 }
 
