@@ -82,14 +82,14 @@ describe('placeholderSuggestions', () => {
   describe('buildAllSuggestions', () => {
     it('should combine all suggestion types', () => {
       const csvHeaders = ['name', 'email'];
-      const suggestions = buildAllSuggestions(csvHeaders);
+      const suggestions = buildAllSuggestions(false, false, csvHeaders);
       
       expect(Array.isArray(suggestions)).toBe(true);
       expect(suggestions.length).toBeGreaterThan(0);
     });
 
     it('should handle undefined CSV headers', () => {
-      const suggestions = buildAllSuggestions([]);
+      const suggestions = buildAllSuggestions(false, false, []);
       
       expect(Array.isArray(suggestions)).toBe(true);
       expect(suggestions.length).toBeGreaterThan(0);
@@ -98,7 +98,7 @@ describe('placeholderSuggestions', () => {
 
   describe('filterSuggestions', () => {
     it('should filter suggestions by query', () => {
-      const allSuggestions = buildAllSuggestions(['name', 'email']);
+      const allSuggestions = buildAllSuggestions(false, false, ['name', 'email']);
       const filtered = filterSuggestions(allSuggestions, 'name');
       
       expect(Array.isArray(filtered)).toBe(true);
@@ -110,14 +110,14 @@ describe('placeholderSuggestions', () => {
     });
 
     it('should return all suggestions for empty query', () => {
-      const allSuggestions = buildAllSuggestions(['name']);
+      const allSuggestions = buildAllSuggestions(false, false, ['name']);
       const filtered = filterSuggestions(allSuggestions, '');
       
       expect(filtered).toEqual(allSuggestions);
     });
 
     it('should handle filtering', () => {
-      const allSuggestions = buildAllSuggestions(['name', 'email']);
+      const allSuggestions = buildAllSuggestions(false, false, ['name', 'email']);
       const filtered = filterSuggestions(allSuggestions, '');
       
       // Empty query should return all suggestions
