@@ -169,38 +169,38 @@ const Index = () => {
   return <div className="min-h-screen bg-background">
       <AppTour ref={tourRef} />
       {/* Header */}
-      <header className="synertec-gradient text-primary-foreground sticky top-0 z-10 shadow-md">
+      <header className="bg-background border-b border-border sticky top-0 z-10 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link to="/" className="p-2 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors" title="Back to Tools">
+              <Link to="/" className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-foreground" title="Back to Tools">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
               <img src={synertecLogo} alt="Synertec" className="h-8" />
               <div>
-                <h1 className="text-xl font-bold">JSON Data Merge</h1>
-                <p className="text-xs text-primary-foreground/80">
+                <h1 className="text-xl font-bold text-foreground">JSON Data Merge</h1>
+                <p className="text-xs text-muted-foreground">
                   Merge CSV data into JSON templates
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="sm" onClick={() => tourRef.current?.startTour()} className="text-primary-foreground hover:bg-primary-foreground/10">
+              <Button variant="ghost" size="sm" onClick={() => tourRef.current?.startTour()} className="text-foreground hover:bg-muted">
                 <HelpCircle className="h-4 w-4 mr-1" />
                 Take Tour
               </Button>
-              <Button variant="outline" size="sm" onClick={loadExample} data-tour="load-example" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+              <Button variant="outline" size="sm" onClick={loadExample} data-tour="load-example" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
                 <Sparkles className="h-4 w-4 mr-1" />
                 Load Example
               </Button>
               {(jsonTemplate || csvData) && (
-                <Button variant="ghost" size="sm" onClick={clearAll} className="text-primary-foreground hover:bg-primary-foreground/10">
+                <Button variant="ghost" size="sm" onClick={clearAll} className="text-foreground hover:bg-muted">
                   <Trash2 className="h-4 w-4 mr-1" />
                   Clear All
                 </Button>
               )}
-              {canMerge && <div className="flex items-center gap-2 text-sm text-primary-foreground/80">
-                <span className="text-primary-foreground font-medium">{resultCount}</span>
+              {canMerge && <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="text-primary font-medium">{resultCount}</span>
                 <span>{resultCount === 1 ? 'file' : 'files'} ready</span>
               </div>}
             </div>
@@ -213,12 +213,12 @@ const Index = () => {
           {/* Left Column - Inputs */}
           <div className="space-y-8">
             {/* JSON Template */}
-            <div className="bg-card rounded-xl p-6 border border-border" data-tour="json-editor">
+            <div className="bg-card rounded-xl p-6 border-l-4 border-l-primary border border-border shadow-sm" data-tour="json-editor">
               <JsonEditor value={jsonTemplate} onChange={setJsonTemplate} isValid={jsonValidation.valid} error={jsonValidation.error} placeholders={fullPlaceholders} csvHeaders={parsedCsv.headers} />
             </div>
 
             {/* CSV Data */}
-            <div className="bg-card rounded-xl p-6 border border-border" data-tour="csv-editor">
+            <div className="bg-card rounded-xl p-6 border-l-4 border-l-secondary border border-border shadow-sm" data-tour="csv-editor">
               <CsvEditor value={csvData} onChange={setCsvData} parsedData={parsedCsv} requiredHeaders={csvPlaceholders} />
             </div>
           </div>
@@ -226,7 +226,7 @@ const Index = () => {
           {/* Right Column - Results */}
           <div className="space-y-4">
             {/* Array Mode Toggle */}
-            <div className="bg-card rounded-xl p-6 border border-border" data-tour="array-mode">
+            <div className="bg-card rounded-xl p-6 border border-border shadow-sm" data-tour="array-mode">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -318,7 +318,7 @@ const Index = () => {
             )}
 
             {/* Status Banner */}
-            <div className="bg-card rounded-xl p-6 border border-border" data-tour="merge-status">
+            <div className={`rounded-xl p-6 border shadow-sm transition-all ${canMerge ? 'synertec-gradient-light border-primary/30' : 'bg-card border-border'}`} data-tour="merge-status">
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-1">
                   <h3 className="font-medium">Merge Status</h3>
@@ -347,7 +347,7 @@ const Index = () => {
             </div>
 
             {/* Results */}
-            {mergedResults.length > 0 ? <div className="bg-card rounded-xl p-6 border border-border" data-tour="results">
+            {mergedResults.length > 0 ? <div className="bg-card rounded-xl p-6 border-l-4 border-l-primary border border-border shadow-sm" data-tour="results">
                 <MergeResults results={mergedResults} csvRows={arrayMode ? [{ _arrayMode: 'combined' }] : parsedCsv.rows} />
               </div> : <div className="bg-card rounded-xl p-6 border border-border" data-tour="results">
                 <div className="text-center py-12">
