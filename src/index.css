@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @layer base {
   :root {
@@ -37,8 +37,8 @@
     --radius: 0.5rem;
 
     --font-mono: 'JetBrains Mono', monospace;
-    --font-sans: 'Inter', sans-serif;
-    --font-display: 'Poppins', sans-serif;
+    --font-sans: 'museo-sans', sans-serif;
+    --font-display: 'museo-sans', sans-serif;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 20% 20%;
