@@ -168,40 +168,40 @@ const Index = () => {
   return <div className="min-h-screen bg-background">
       <AppTour ref={tourRef} />
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+      <header className="synertec-gradient text-primary-foreground sticky top-0 z-10 shadow-md">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link to="/" className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors" title="Back to Tools">
-                <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+              <Link to="/" className="p-2 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 transition-colors" title="Back to Tools">
+                <ArrowLeft className="h-5 w-5" />
               </Link>
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Wand2 className="h-6 w-6 text-primary" />
+              <div className="p-2 rounded-lg bg-primary-foreground/10">
+                <Wand2 className="h-6 w-6" />
               </div>
               <div>
                 <h1 className="text-xl font-bold">JSON Data Merge</h1>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-primary-foreground/80">
                   Merge CSV data into JSON templates
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="sm" onClick={() => tourRef.current?.startTour()}>
+              <Button variant="ghost" size="sm" onClick={() => tourRef.current?.startTour()} className="text-primary-foreground hover:bg-primary-foreground/10">
                 <HelpCircle className="h-4 w-4 mr-1" />
                 Take Tour
               </Button>
-              <Button variant="outline" size="sm" onClick={loadExample} data-tour="load-example">
+              <Button variant="outline" size="sm" onClick={loadExample} data-tour="load-example" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
                 <Sparkles className="h-4 w-4 mr-1" />
                 Load Example
               </Button>
               {(jsonTemplate || csvData) && (
-                <Button variant="ghost" size="sm" onClick={clearAll}>
+                <Button variant="ghost" size="sm" onClick={clearAll} className="text-primary-foreground hover:bg-primary-foreground/10">
                   <Trash2 className="h-4 w-4 mr-1" />
                   Clear All
                 </Button>
               )}
-              {canMerge && <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="text-primary font-medium">{resultCount}</span>
+              {canMerge && <div className="flex items-center gap-2 text-sm text-primary-foreground/80">
+                <span className="text-primary-foreground font-medium">{resultCount}</span>
                 <span>{resultCount === 1 ? 'file' : 'files'} ready</span>
               </div>}
             </div>
