@@ -6,6 +6,104 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { CoverageHelpers } from './coverage-helpers';
 
+export class ToolSelectorPage {
+  readonly page: Page;
+
+  // Header elements
+  readonly header: Locator;
+  readonly headerIcon: Locator;
+  readonly mainTitle: Locator;
+  readonly mainDescription: Locator;
+
+  // Main content elements
+  readonly main: Locator;
+  readonly sectionTitle: Locator;
+  readonly sectionDescription: Locator;
+  readonly toolGrid: Locator;
+
+  // Tool cards
+  readonly jsonMergeCard: Locator;
+  readonly jsonMergeTitle: Locator;
+  readonly jsonMergeDescription: Locator;
+  readonly jsonMergeButton: Locator;
+
+  // Placeholder card
+  readonly placeholderCard: Locator;
+  readonly placeholderTitle: Locator;
+  readonly placeholderDescription: Locator;
+  readonly placeholderButton: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+
+    // Header
+    this.header = page.locator('header');
+    this.headerIcon = this.header.locator('svg').first();
+    this.mainTitle = page.locator('h1:has-text("Synertec Tools")');
+    this.mainDescription = page.locator('p:has-text("Productivity tools for data transformation")');
+
+    // Main content
+    this.main = page.locator('main');
+    this.sectionTitle = page.locator('h2:has-text("Available Tools")');
+    this.sectionDescription = page.locator('p:has-text("Select a tool to get started")');
+    this.toolGrid = page.locator('div.grid');
+
+    // JSON Merge tool card
+    this.jsonMergeCard = page.locator('a[href="/json-merge"]');
+    this.jsonMergeTitle = this.jsonMergeCard.locator('h3:has-text("JSON Data Merge")');
+    this.jsonMergeDescription = this.jsonMergeCard.locator('p:has-text("Merge CSV data into JSON templates")');
+    this.jsonMergeButton = this.jsonMergeCard.locator('button:has-text("Open Tool")');
+
+    // Placeholder card
+    this.placeholderCard = page.locator('div.border-dashed:has(h3:has-text("More Coming Soon"))');
+    this.placeholderTitle = this.placeholderCard.locator('h3:has-text("More Coming Soon")');
+    this.placeholderDescription = this.placeholderCard.locator('p:has-text("Additional tools are in development")');
+    this.placeholderButton = this.placeholderCard.locator('button:has-text("Coming Soon")');
+  }
+
+  // Navigation methods
+  async goto(): Promise<void> {
+    await this.page.goto('/');
+    await this.page.waitForLoadState('networkidle');
+  }
+
+  async navigateToJsonMerge(): Promise<void> {
+    await this.jsonMergeCard.click();
+    await this.page.waitForLoadState('networkidle');
+  }
+
+  // Verification methods
+  async verifyPageStructure(): Promise<void> {
+    await expect(this.header).toBeVisible();
+    await expect(this.mainTitle).toBeVisible();
+    await expect(this.mainDescription).toBeVisible();
+    await expect(this.main).toBeVisible();
+    await expect(this.sectionTitle).toBeVisible();
+    await expect(this.sectionDescription).toBeVisible();
+    await expect(this.toolGrid).toBeVisible();
+  }
+
+  async verifyJsonMergeCard(): Promise<void> {
+    await expect(this.jsonMergeCard).toBeVisible();
+    await expect(this.jsonMergeTitle).toBeVisible();
+    await expect(this.jsonMergeDescription).toBeVisible();
+    await expect(this.jsonMergeButton).toBeVisible();
+  }
+
+  async verifyPlaceholderCard(): Promise<void> {
+    await expect(this.placeholderCard).toBeVisible();
+    await expect(this.placeholderTitle).toBeVisible();
+    await expect(this.placeholderDescription).toBeVisible();
+    await expect(this.placeholderButton).toBeVisible();
+    await expect(this.placeholderButton).toBeDisabled();
+  }
+
+  async getToolCount(): Promise<number> {
+    const toolCards = this.page.locator('a[href^="/"]');
+    return await toolCards.count();
+  }
+}
+
 export class MergeToolPage {
   readonly page: Page;
 
@@ -133,7 +231,7 @@ export class MergeToolPage {
 
   // Navigation methods
   async goto(): Promise<void> {
-    await this.page.goto('/?test=true');
+    await this.page.goto('/json-merge?test=true');
     await this.page.waitForLoadState('networkidle');
   }
 

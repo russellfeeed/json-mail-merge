@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/pages/Index.tsx</title>
+    <title>Code coverage report for src/pages/JsonMerge.tsx</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../prettify.css" />
     <link rel="stylesheet" href="../../base.css" />
@@ -19,7 +19,7 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/pages</a> Index.tsx</h1>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/pages</a> JsonMerge.tsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
@@ -450,7 +450,11 @@
 <a name='L385'></a><a href='#L385'>385</a>
 <a name='L386'></a><a href='#L386'>386</a>
 <a name='L387'></a><a href='#L387'>387</a>
-<a name='L388'></a><a href='#L388'>388</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L388'></a><a href='#L388'>388</a>
+<a name='L389'></a><a href='#L389'>389</a>
+<a name='L390'></a><a href='#L390'>390</a>
+<a name='L391'></a><a href='#L391'>391</a>
+<a name='L392'></a><a href='#L392'>392</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -467,6 +471,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -721,7 +726,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -735,6 +740,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -838,7 +846,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useState, useMemo, useEffect, useRef } from 'react';
-import { Wand2, ArrowRight, Sparkles, List, Trash2, AlertCircle, HelpCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Wand2, ArrowRight, ArrowLeft, Sparkles, List, Trash2, AlertCircle, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { JsonEditor } from '@/components/JsonEditor';
 import { CsvEditor } from '@/components/CsvEditor';
@@ -1010,22 +1019,25 @@ const Index = () =&gt; {<span class="cstat-no" title="statement not covered" ></
         &lt;div className="container mx-auto px-4 py-4"&gt;
           &lt;div className="flex items-center justify-between"&gt;
             &lt;div className="flex items-center gap-3"&gt;
-              &lt;div className="p-2 rounded-lg bg-primary/10"&gt;
-                &lt;Wand<span class="cstat-no" title="statement not covered" >2 className="h-6 w-6 text-primary" /&gt;</span>
-              &lt;/div&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ></span></span>
-<span class="cstat-no" title="statement not covered" >              &lt;div&gt;<span class="cstat-no" title="statement not covered" ></span></span>
-<span class="cstat-no" title="statement not covered" >                &lt;h1 className="text-xl font-bold"&gt;JSON Data Merge&lt;/h1&gt;</span>
-                &lt;p classNam<span class="cstat-no" title="statement not covered" >e="text-xs text-muted-foreground"&gt;</span>
-<span class="cstat-no" title="statement not covered" >                  Merge CSV data into JSON templates</span>
-                &lt;/p&gt;
-              &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;div className="flex i<span class="cstat-no" title="statement not covered" >tems-center gap-3"&gt;</span>
-<span class="cstat-no" title="statement not covered" >              &lt;Button variant="gho<span class="fstat-no" title="function not covered" >st</span>" size="sm" onClick={() =&gt; tourRef.current?.startTour()}&gt;</span>
-                &lt;HelpCircle cl<span class="cstat-no" title="statement not covered" >assName="h-4 w-4 mr-1" /&gt;</span>
-                Take Tour<span class="cstat-no" title="statement not covered" ></span>
-              &lt;/Button&gt;<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >              &lt;Button variant="outline" size="sm" onClick={loadExample} data-tour="load-example"&gt;</span>
+              &lt;Link to="/" className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors" title="Back to Tools"&gt;
+                &lt;Arro<span class="cstat-no" title="statement not covered" >wLeft className="h-5 w-5 text-muted-foreground" /&gt;</span>
+              &lt;/Link&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ></span></span>
+<span class="cstat-no" title="statement not covered" >              &lt;div clas<span class="cstat-no" title="statement not covered" >sName="p-2 rounded-lg bg-primary/10"&gt;</span></span>
+<span class="cstat-no" title="statement not covered" >                &lt;Wand2 className="h-6 w-6 text-primary" /&gt;</span>
+              &lt;/div&gt;<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >              &lt;div&gt;</span>
+                &lt;h1 className="text-xl font-bold"&gt;JSON Data Merge&lt;/h1&gt;
+                &lt;p className="text-xs text-muted-foreground"&gt;
+                  Merge CSV data into JSON templates
+                &lt;/p&gt;<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >              &lt;/div&gt;<span class="fstat-no" title="function not covered" ></span></span>
+            &lt;/div&gt;<span class="cstat-no" title="statement not covered" ></span>
+            &lt;div className=<span class="cstat-no" title="statement not covered" >"flex items-center gap-3"&gt;</span>
+              &lt;Button variant="ghost" size=<span class="cstat-no" title="statement not covered" >"sm" onClick={() =&gt; tourRef.current?.startTour()}&gt;</span>
+<span class="cstat-no" title="statement not covered" >                &lt;HelpCircle className="h-4 w-4 mr-1" /&gt;</span>
+                Take Tour
+              &lt;/Button&gt;
+              &lt;Button variant="outline" size="sm" onClick={loadExample} data-tour="load-example"&gt;
                 &lt;Sparkles className="h-4 w-4 mr-1" /&gt;
                 Load Example
               &lt;/Button&gt;
@@ -1034,10 +1046,10 @@ const Index = () =&gt; {<span class="cstat-no" title="statement not covered" ></
                   &lt;Trash2 className="h-4 w-4 mr-1" /&gt;
                   Clear All
                 &lt;/Button&gt;
-              )}
+              )}<span class="cstat-no" title="statement not covered" ></span>
               {canMerge &amp;&amp; &lt;div className="flex items-center gap-2 text-sm text-muted-foreground"&gt;
                 &lt;span className="text-primary font-medium"&gt;{resultCount}&lt;/span&gt;
-                &lt;span&gt;{r<span class="cstat-no" title="statement not covered" >esultCount === 1 ? 'file' : 'files'} </span>ready&lt;/span&gt;
+                &lt;span&gt;{resultCount === 1 ? 'file' : 'files'} ready&lt;/span&gt;
               &lt;/div&gt;}
             &lt;/div&gt;
           &lt;/div&gt;
@@ -1108,7 +1120,7 @@ const Index = () =&gt; {<span class="cstat-no" title="statement not covered" ></
                     )}
                   &lt;/div&gt;
                 )}
-              &lt;/div&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ></span></span>
+              &lt;/div&gt;
             &lt;/div&gt;
 &nbsp;
             {/* User Inputs Section */}
@@ -1121,7 +1133,7 @@ const Index = () =&gt; {<span class="cstat-no" title="statement not covered" ></
             )}
 &nbsp;
             {/* Row Input Placement Error */}
-            {hasRowInputPlacementErrors &amp;&amp; (
+            {hasRowInputPlacementErrors &amp;&amp; (<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ></span></span>
               &lt;div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4"&gt;
                 &lt;div className="flex items-start gap-2"&gt;
                   &lt;AlertCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" /&gt;
@@ -1163,7 +1175,7 @@ const Index = () =&gt; {<span class="cstat-no" title="statement not covered" ></
                     {jsonTemplate &amp;&amp; !jsonValidation.valid &amp;&amp; 'Fix JSON errors to continue'}
                     {jsonTemplate &amp;&amp; jsonValidation.valid &amp;&amp; parsedCsv.rows.length === 0 &amp;&amp; 'Add CSV data to merge'}
                     {jsonTemplate &amp;&amp; jsonValidation.valid &amp;&amp; parsedCsv.rows.length &gt; 0 &amp;&amp; arrayMode &amp;&amp; !selectedArrayPath &amp;&amp; 'Select an array to populate'}
-                    {jsonTemplate &amp;&amp;<span class="branch-0 cbranch-no" title="branch not covered" > jsonValidation.valid &amp;&amp; pa</span>rsedCsv.rows.length &gt; 0 &amp;&amp; requiredUserInputs.length &gt; 0 &amp;&amp; !userInputsValid &amp;&amp; 'Fill in required user inputs'}
+                    {jsonTemplate &amp;&amp; jsonValidation.valid &amp;&amp; parsedCsv.rows.length &gt; 0 &amp;&amp; requiredUserInputs.length &gt; 0 &amp;&amp; !userInputsValid &amp;&amp; 'Fill in required user inputs'}
                     {jsonTemplate &amp;&amp; jsonValidation.valid &amp;&amp; parsedCsv.rows.length &gt; 0 &amp;&amp; userInputsValid &amp;&amp; requiredRowInputs.length &gt; 0 &amp;&amp; !rowInputsValid &amp;&amp; !hasRowInputPlacementErrors &amp;&amp; 'Fill in row inputs for each CSV row'}
                     {jsonTemplate &amp;&amp; jsonValidation.valid &amp;&amp; hasRowInputPlacementErrors &amp;&amp; 'Row input placeholders must be inside arrays'}
                     {canMerge &amp;&amp; (arrayMode 
@@ -1176,7 +1188,7 @@ const Index = () =&gt; {<span class="cstat-no" title="statement not covered" ></
                   &lt;div className={`h-3 w-3 rounded-full ${jsonValidation.valid &amp;&amp; jsonTemplate ? 'bg-emerald-500' : 'bg-muted'}`} /&gt;
                   &lt;ArrowRight className="h-4 w-4 text-muted-foreground" /&gt;
                   &lt;div className={`h-3 w-3 rounded-full ${parsedCsv.rows.length &gt; 0 ? 'bg-emerald-500' : 'bg-muted'}`} /&gt;
-                  &lt;ArrowRight className="h-4 w-4 text-muted-foreground" /&gt;
+                  &lt;ArrowRight classN<span class="branch-0 cbranch-no" title="branch not covered" >ame="h-4 w-4 text-muted-for</span>eground" /&gt;
                   &lt;div className={`h-3 w-3 rounded-full ${canMerge ? 'bg-primary animate-pulse-glow' : 'bg-muted'}`} /&gt;
                 &lt;/div&gt;
               &lt;/div&gt;
@@ -1231,7 +1243,7 @@ export default Index;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-16T12:23:12.098Z
+                at 2025-12-22T09:58:05.084Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
