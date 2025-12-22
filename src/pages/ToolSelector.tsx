@@ -28,7 +28,7 @@ const ToolSelector = () => {
             <div>
               <h1 className="text-2xl font-bold">Synertec Tools</h1>
               <p className="text-sm text-muted-foreground">
-                A collection of useful development tools
+                Productivity tools for data transformation and development workflows
               </p>
             </div>
           </div>
